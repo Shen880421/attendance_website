@@ -193,6 +193,32 @@
                         position: 'top'
                         }
                     }
+                },
+                animation: {
+                    onComplete: function(chart) {
+                        const { ctx, data, chartArea: { top, bottom, left, right }, scales: { x, y } } = chart;
+                        ctx.save();
+                        ctx.fillStyle = 'black';
+                        ctx.textAlign = 'left';
+                        ctx.textBaseline = 'middle';
+                        ctx.font = 'bold 12px Arial';
+
+                        data.datasets[0].data.forEach((completedVal, i) => {
+                            const total = completedVal + data.datasets[1].data[i];
+                            if (total === 0) return; // 避免除以0錯誤
+
+                            const rate = ((completedVal / total) * 100).toFixed(2) + '%';
+
+                            // x座標放在堆疊長度的右邊界稍微偏右5像素
+                            const xPos = x.getPixelForValue(total) + 5;
+                            // y座標為第 i 條 bar 的中心位置
+                            const yPos = y.getPixelForValue(i);
+
+                            ctx.fillText(rate, xPos, yPos);
+                        });
+
+                        ctx.restore();
+                    }
                 }
             });
         });
