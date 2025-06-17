@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS classes (
     class_date DATE NOT NULL,
     class_hours INT NOT NULL,
     class_name VARCHAR(255) NOT NULL
-);
+) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 INSERT INTO classes (group_name, class_date, class_hours, class_name) VALUES
 ('FS101', '2025-04-15', 6, '資訊基礎導論'),
@@ -37,5 +37,5 @@ INSERT INTO classes (group_name, class_date, class_hours, class_name) VALUES
 ('FS101', '2025-05-28', 6, 'SQL資料庫'),
 ('FS101', '2025-05-29', 6, 'SQL資料庫'),
 ('FS101', '2025-06-02', 6, 'SQL資料庫'),
-('FS101', '2025-06-03', 6, 'SQL資料庫');
+('FS101', '2025-06-03', 6, 'SQL資料庫'),
 ('FS101', '2025-06-04', 7, 'Chart.js');
