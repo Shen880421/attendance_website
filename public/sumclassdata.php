@@ -1,94 +1,74 @@
 <?php
-require_once '../inc/db.inc.php';
 header('Content-Type: application/json');
+require_once '../inc/db.inc.php'; // 請根據實際路徑修改
 
+// // 取得學生姓名（從 GET 參數或 SESSION）
+// $student_name = isset($_GET['name']) ? $_GET['name'] : null;
 
-try {
+// if (!$student_name) {
+//     echo json_encode(['error' => '缺少學生名稱']);
+//     exit;
+// }
 
-    // 查詢 total_hours 表，計算每位學生的每日時數
-    $sql_attendance = "
-        SELECT Name, Date, Time, `In/Out`
-        FROM total_hours
-        WHERE group_name = 'FS101'
-        ORDER BY Name, Date, Time
-    ";
-    $stmt = $pdo->query($sql_attendance);
-    $attendance_records = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// 安全查詢資料庫
+$sql = "WITH attendance AS (
+        SELECT
+            in_data.Name,
+            in_data.group_name,
+            in_data.real_date,
+            TIMEDIFF(out_data.real_time, in_data.real_time) AS duration,
+            ROUND(TIME_TO_SEC(TIMEDIFF(out_data.real_time, in_data.real_time)) / 3600, 2) AS duration_hours
+        FROM
+            (
+                SELECT 
+                    group_name,
+                    Name,
+                    `In/Out`,
+                    STR_TO_DATE(Time, '%l:%i%p') AS real_time,
+                    STR_TO_DATE(Date, '%Y-%m-%d') AS real_date
+                FROM total_hours
+                WHERE `In/Out` = 'in'
+            ) AS in_data
+        JOIN
+            (
+                SELECT 
+                    group_name,
+                    Name,
+                    `In/Out`, 
+                    STR_TO_DATE(Time, '%l:%i%p') AS real_time,
+                    STR_TO_DATE(Date, '%Y-%m-%d') AS real_date
+                FROM total_hours
+                WHERE `In/Out` = 'out'
+            ) AS out_data
+        ON 
+            in_data.Name = out_data.Name
+            AND in_data.real_date = out_data.real_date
+            AND in_data.group_name = out_data.group_name
+        )
 
-    // 處理每日時數
-    $attendance = [];
-    $current_name = '';
-    $current_date = '';
-    $in_time = null;
+        SELECT
+            a.Name,
+            a.group_name,
+            c.class_name,
+            SUM(a.duration_hours) AS total_attendance_hours,
+            SUM(c.class_hours) AS total_class_hours,
+            LEAST(ROUND(SUM(a.duration_hours) / SUM(c.class_hours) * 100, 2), 100) AS completion_rate_pct
+        FROM attendance a
+        JOIN classes c
+            ON a.group_name = c.group_name
+            AND a.real_date = c.class_date
+        WHERE a.name = :name  -- 這行限定查詢 Shen
+        GROUP BY
+            a.Name,
+            a.group_name,
+            c.class_name
+        ORDER BY
+            a.Name,
+            c.class_name;";
 
-    foreach ($attendance_records as $record) {
-        $name = $record['Name'];
-        $date = $record['Date'];
-        $time = date('H:i', strtotime($record['Time']));
-        $in_out = $record['In/Out'];
+$stmt = $pdo->prepare($sql);
+$stmt->execute(['name' => 'Shen']);
 
-        if ($current_name !== $name || $current_date !== $date) {
-            $in_time = null; // 重置 in_time 當切換學生或日期
-        }
+$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        if ($in_out === 'in') {
-            $in_time = strtotime($time);
-        } elseif ($in_out === 'out' && $in_time !== null) {
-            $out_time = strtotime($time);
-            if ($out_time > $in_time) {
-                $hours = ($out_time - $in_time) / 3600; // 轉為小時
-                if (!isset($attendance[$name])) {
-                    $attendance[$name] = [];
-                }
-                $attendance[$name][$date] = $hours;
-            }
-            $in_time = null; // 重置 in_time 避免重複計算
-        }
-
-        $current_name = $name;
-        $current_date = $date;
-    }
-
-    // 查詢 classes 表
-    $sql_classes = "
-        SELECT class_date, class_hours, class_name
-        FROM classes
-        WHERE group_name = 'FS101'
-        ORDER BY class_date
-    ";
-    $stmt = $pdo->query($sql_classes);
-    $classes = [];
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $date = date('Y/m/d', strtotime($row['class_date']));
-        $classes[$date] = [
-            'hours' => $row['class_hours'],
-            'name' => $row['class_name']
-        ];
-    }
-
-    // 計算達成率
-    $results = [];
-    foreach ($attendance as $name => $dates) {
-        $results[$name] = [];
-        foreach ($classes as $date => $class) {
-            $class_name = $class['name'];
-            $class_hours = $class['hours'];
-            $attended_hours = isset($dates[$date]) ? min($dates[$date], $class_hours) : 0;
-            if (!isset($results[$name][$class_name])) {
-                $results[$name][$class_name] = ['total_attended' => 0, 'total_hours' => 0];
-            }
-            $results[$name][$class_name]['total_attended'] += $attended_hours;
-            $results[$name][$class_name]['total_hours'] += $class_hours;
-        }
-        foreach ($results[$name] as $class_name => &$data) {
-            $data['achievement_rate'] = $data['total_hours'] > 0 ? 
-                ($data['total_attended'] / $data['total_hours']) * 100 : 0;
-            $data['achievement_rate'] = number_format($data['achievement_rate'], 2);
-        }
-    }
-
-    echo json_encode($results);
-} catch (PDOException $e) {
-    echo json_encode(['error' => '資料庫錯誤: ' . $e->getMessage()]);
-}
-?>
+echo json_encode($data);

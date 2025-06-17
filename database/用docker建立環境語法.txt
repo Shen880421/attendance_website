@@ -1,0 +1,4 @@
+docker run -itd --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=ashen2250 mysql
+docker run --name phpmyadmin -d --link mysql -e PMA_HOST="mysql" -p 8080:80 phpmyadmin/phpmyadmin 
+docker build -t myattendance-phpapache .
+docker run -d --name running-attendence -p 80:80 -v /C/Users/solov/attendance_website:/var/www/html/ myattendance-phpapache:latest

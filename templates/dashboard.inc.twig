@@ -56,7 +56,7 @@
                 <div class="row row-cols-1 row-cols-md-1">
                     <div class="p-5">
                         <h1>課程時數柱狀圖</h1>
-                        <canvas id="courseChart" width="400" height="200"></canvas>
+                        <canvas id="courseChart" width="800" height="400"></canvas>
                     </div>
                 </div>
             {% endblock %}
@@ -67,7 +67,10 @@
     
     {% include "footer.inc.twig" %}
     
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- 載入Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- 載入 Chart.js Data Labels 插件（如果想顯示標籤） -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
     <!-- 抓取時數 -->
     {% block scripts %}
     <script>
@@ -107,32 +110,90 @@
         .then(res => res.json())
         .then(data => {
             const labels = data.map(item => item.class_name);
-            const values = data.map(item => parseInt(item.days));
+            const totalHours = data.map(item => parseInt(item.total_class_hours));
+            const completionRates = data.map(item => parseFloat(item.completion_rate_pct));
+            const completedHours = totalHours.map((hours, i) => hours * (completionRates[i] / 100));
+            const remainingHours = totalHours.map((hours, i) => hours - completedHours[i]);
 
-            new Chart(document.getElementById('courseChart'), {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                label: '課程天數',
-                data: values,
-                backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                y: {
-                    beginAtZero: true,
-                    title: { display: true, text: '天數' }
+            const ctx = document.getElementById('courseChart').getContext('2d');
+
+            const percentagePlugin = {
+                id: 'percentagePlugin',
+                afterDatasetsDraw(chart, args, options) {
+                    const {ctx, data, scales: {x, y}} = chart;
+                    ctx.save();
+                    ctx.fillStyle = 'black';
+                    ctx.textAlign = 'left';
+                    ctx.textBaseline = 'middle';
+                    ctx.font = 'bold 12px Arial';
+
+                    data.datasets[0].data.forEach((completedVal, i) => {
+                        const total = completedVal + data.datasets[1].data[i];
+                        if (total === 0) return; // 避免除以0
+
+                        const rate = ((completedVal / total) * 100).toFixed(2) + '%';
+
+                        // x座標為該堆疊bar右邊界再稍微往右一點
+                        const xPos = x.getPixelForValue(total) + 5;
+                        const yPos = y.getPixelForValue(i);
+
+                        ctx.fillText(rate, xPos, yPos);
+                    });
+
+                    ctx.restore();
+                }
+            };
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: '已完成時數',
+                            data: completedHours,
+                            backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1,
+                        },
+                        {
+                            label: '未完成時數',
+                            data: remainingHours,
+                            backgroundColor: 'rgba(201, 203, 207, 0.6)',
+                            borderColor: 'rgba(201, 203, 207, 1)',
+                            borderWidth: 1,
+                        }
+                    ]
                 },
-                x: {
-                    title: { display: true, text: '課程名稱' }
+                options: {
+                    indexAxis: 'y',  // 水平條形圖
+                    responsive: true,
+                    scales: {
+                        x: {
+                        stacked: true,
+                        beginAtZero: true,
+                        title: { display: true, text: '時數 (小時)' }
+                        },
+                        y: {
+                        stacked: true,
+                        title: { display: true, text: '課程名稱' }
+                        }
+                    },
+                    interaction: {
+                        mode: 'nearest', // 或 'index'
+                        axis: 'y',      // 僅沿 y 軸（上下）
+                        intersect: false
+                    },
+                    plugins: {
+                        tooltip: {
+                        mode: 'index',
+                        intersect: false
+                        },
+                        legend: {
+                        position: 'top'
+                        }
+                    }
                 }
-                }
-            }
             });
         });
     </script>
