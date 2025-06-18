@@ -6,235 +6,79 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>出勤紀錄</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="../wannabakery-test\wannabakery.css" rel="stylesheet">
+    
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
     <!--導航列-->
-    <nav class="navbar navbar-expand-lg nav_top">
-        <div class="container-fluid">
-            <!-- 網站品牌 -->
-            <a class="navbar-brand" href="#">Shen
-            </a>
-
-            <!-- 漢堡選單按鈕 (小螢幕顯示) -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <!-- 導航菜單內容 -->
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="../index.html">回到首頁</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    {% block nav %}
+    {% include "nav.inc.twig" %}
+    {% endblock %}
     <!--內容區塊-->
     <main class="container-fluid mt-4">
         <!--分成左右2邊的佈區-->
         <div class="row">
             <div class="col-md-2">
                 <!--左側選單列-->
-                <div class="list-group">
-                    <a href="javascript:;" class="list-group-item div_bgcolor">總覽</a>
-                    <!-- <a href="javascript:;" class="list-group-item">出勤</a>
-                    <a href="javascript:;" class="list-group-item">缺勤</a> -->
-                </div>
+                {% block menu %}
+                {% include "menu.inc.twig" %}
+                {% endblock %}
             </div>
             <div class="col-md-10">
+                {% block content %}
                 <h3>出缺勤總覽</h3>
                 <div class="row row-cols-1 row-cols-md-3">
                     <div class="col">
                         <div class="card shadow-sm">
                             <div class="card-body">
                                 <h6>總課程時數</h6>
-                                <div id="totalclasshours" class="card-title-number text-primary">---</div>
-                                <h6>實際上課時數</h6>
-                                <div id="attendance" class="card-title-number text-primary">---</div>
-                                <h6>出勤比率</h6>
-                                <div id="attendancerate" class="card-title-number text-primary">---</div>
+                                <div id="classhours" class="card-title-number text-primary">---</div>
+                                <h6>總課程數</h6>
+                                <div id="class" class="card-title-number text-primary">---</div>
+                                <h6>總天數</h6>
+                                <div id="days" class="card-title-number text-primary">---</div>
                             </div>
                         </div>
                     </div>
                     <div class="col">
                         <div class="card shadow-sm">
                             <div class="card-body">
-                                <h6>缺席時數</h6>
-                                <div id="unattendance" class="card-title-number text-primary">---</div>
-                                <h6>遲到時數</h6>
-                                <div id="late" class="card-title-number text-primary">---</div>
-                                <h6>早退時數</h6>
-                                <div id="leave_early" class="card-title-number text-primary">---</div>
+                                <h6>總出席率數</h6>
+                                <div id="attendancerate" class="card-title-number text-primary">---</div>
+                                <h6>總遲到率</h6>
+                                <div id="laterate" class="card-title-number text-primary">---</div>
+                                <h6>總早退率</h6>
+                                <div id="leave_earlyrate" class="card-title-number text-primary">---</div>
+                                <h6>平均到校時數</h6>
+                                <div id="inschoolavrage" class="card-title-number text-primary">---</div>
                             </div>
                         </div>
                     </div>
-                    <!--出缺席圓餅圖-->
-                    <div>
-                        <h6>出/缺席</h1>
-                            <canvas id="myAttenChart"></canvas>
-                    </div>
                 </div>
-                <!--每日上課時間折線圖-->
+                <!--課程時數柱狀圖-->
                 <div class="row row-cols-1 row-cols-md-1">
                     <div class="p-5">
-                        <h1>每日上課時間折線圖</h1>
-                        <canvas id="myclasstimeChart"></canvas>
+                        <h1>課程時數柱狀圖</h1>
+                        <canvas id="courseChart" width="800" height="400"></canvas>
                     </div>
                 </div>
-                <!--每日在校時間折線圖-->
-                <div class="row row-cols-1 row-cols-md-1">
-                    <div class="p-5">
-                        <h1>每日在校時間折線圖</h1>
-                        <canvas id="myattentimeChart"></canvas>
-                    </div>
-                </div>
+            {% endblock %}
             </div>
         </div>
 
     </main>
-    <footer class="bg-dark text-white mt-5 py-4">
-        <div class="container">
-            <div class="row row-cols-1 row-cols-md-3">
-                
-            </div>
-        </div>
-    </footer>
-    <!-- 動態模板 -->
-    <!-- <div class="modal fade" id="article-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg  modal-dialog-scrollable">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="article-modal-title">---</h5>
-                    x 關閉按鈕
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="article-modal-body">
+    
+    {% include "footer.inc.twig" %}
+    
+    <!-- 載入Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- 載入 Chart.js Data Labels 插件（如果想顯示標籤） -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+    
+    {% block scripts %}
 
-                </div>
-                <div class="modal-footer">
-
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
-                </div>
-            </div>
-        </div>
-    </div> -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- 抓取時數 -->
-    <script>
-        const totalclasshours = document.getElementById("totalclasshours");
-        const attendance = document.getElementById("attendance");
-        const attendancerate = document.getElementById("attendancerate");
-        const unattendance = document.getElementById("unattendance");
-        const late = document.getElementById("late");
-        const leave_early = document.getElementById("leave_early");
-        fetch('shenattendance.json')
-            .then(res => res.json())
-            .then(data => {
-                data.forEach(hours => {
-                    // console.log(typeof (parseFloat(hours.leave_early_hours)))
-                    totalclasshours.innerHTML = `${parseFloat(hours.class_hours).toFixed(2)} 小時`;
-                    attendance.innerHTML = `${parseFloat(hours.attended_hours).toFixed(2)} 小時`;
-                    const attendanceratenum = parseInt((parseFloat(hours.attended_hours) / parseFloat(hours.class_hours)) * 100);
-                    // console.log(typeof (attendancerate));
-                    attendancerate.innerHTML = `${attendanceratenum}%`;
-                    unattendance.innerHTML = `${parseFloat(hours.absent_hours).toFixed(2)} 小時`;
-                    late.innerHTML = `${parseFloat(hours.late_hours).toFixed(2)} 小時`;
-                    leave_early.innerHTML = `${parseFloat(hours.leave_early_hours).toFixed(2)} 小時`;
-                    // 出缺席圓餅圖 
-                    const ctx = document.getElementById('myAttenChart');
-                    new Chart(ctx, {
-                        type: 'pie',
-                        data: {
-                            labels: ['出席', '缺席'],
-                            datasets: [{
-                                label: '出缺席',
-                                data: [parseFloat(hours.attended_hours).toFixed(2), parseFloat(hours.absent_hours).toFixed(2)],
-                                backgroundColor: [
-                                    'rgba(75, 192, 192, 0.6)', // 綠色
-                                    'rgba(255, 99, 132, 0.6)'  // 紅色
-                                ],
-                                borderWidth: 0 // 邊框寬度
-                            }]
-                        },
-                    });
-                });
-            })
-    </script>
-    <script>// 每日上課時間折線圖
-        const ctx_ct = document.getElementById('myclasstimeChart');
-        const ctx_at = document.getElementById('myattentimeChart');
-        let mylinechart;
-        async function linechart() {
-            try {
-                const response = await fetch('hoursline.json');
-                if (!response.ok) {
-                    throw new Error(response.status);
-                }
-                const res = await response.json();
-                console.log(typeof (res));
-                console.log(res);
-                const classdate = res.map(item => item.class_date);
-                const classhours = res.map(item => item.class_hours);
-                const attenhours = res.map(item => item.raw_hours);
-
-                mylinechart = new Chart(ctx_ct, {
-                    type: 'line',
-                    data: {
-                        labels: classdate,
-                        datasets: [{
-                            label: '每日上課時間',
-                            data: classhours,
-                            backgroundColor: [
-                                'rgba(75, 192, 192, 0.6)', // 綠色
-                            ],
-                            borderColor: 'rgba(75, 192, 192, 0.6)'
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true // Y 軸從 0 開始
-                            }
-                        }
-                    }
-                });
-            // 每日在校時間折線圖
-                new Chart(ctx_at, {
-                    type: 'line',
-                    data: {
-                        labels: classdate,
-                        datasets: [{
-                            label: '每日在校時間折線圖',
-                            data: attenhours,
-                            backgroundColor: [
-                                'rgba(75, 192, 192, 0.6)', // 綠色
-                            ],
-                            borderColor: 'rgba(75, 192, 192, 0.6)'
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true // Y 軸從 0 開始
-                            }
-                        }
-                    }
-                });
-            } catch (error) {
-                console.error(error);
-            }
-
-        }
-
-        
-
-        window.onload = linechart;
-    </script>
+    {% endblock %}
 </body>
 
 </html>

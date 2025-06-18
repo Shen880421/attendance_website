@@ -1,0 +1,159 @@
+SET SESSION sql_mode = '';
+
+SELECT 
+    Name,
+    Time,
+    STR_TO_DATE(Time, '%l:%i%p') AS Start_time
+FROM total_hours;
+################################################
+SET SESSION sql_mode = '';
+SELECT 
+    group_name,
+    Name,
+    'In/Out',
+    STR_TO_DATE(Time, '%l:%i%p') AS Start_time,
+    STR_TO_DATE(Date, '%Y/%m/%d') AS real_date
+FROM total_hours;
+#########################################################
+SET SESSION sql_mode = '';
+
+SELECT
+    in_data.Name,
+    in_data.group_name,
+    in_data.real_date,
+    in_data.real_time AS in_time,
+    in_data.real_time AS out_time,
+    TIMEDIFF(out_data.real_time, in_data.real_time) AS duration
+FROM
+    (
+        SELECT 
+    	group_name,
+    	Name,
+   	`In/Out`,
+   	STR_TO_DATE(Time, '%l:%i%p') AS real_time,
+   	STR_TO_DATE(Date, '%Y/%m/%d') AS real_date
+    	FROM total_hours
+	WHERE `In/Out` = 'in'
+    ) AS in_data
+JOIN
+    (
+        SELECT 
+            group_name, Name, `In/Out`, 
+            STR_TO_DATE(time, '%l:%i%p') AS real_time,
+            STR_TO_DATE(date, '%Y/%m/%d') AS real_date
+        FROM total_hours
+        WHERE `In/Out` = 'out'
+    ) AS out_data
+ON 
+    in_data.name = out_data.name
+    AND in_data.real_date = out_data.real_date
+    AND in_data.group_name = out_data.group_name
+
+############################
+SET SESSION sql_mode = '';
+
+-- 第一步：計算學生每天的實際出勤時數
+WITH attendance AS (
+    SELECT
+        in_data.Name,
+        in_data.group_name,
+        in_data.real_date,
+        TIMEDIFF(out_data.real_time, in_data.real_time) AS duration,
+        ROUND(TIME_TO_SEC(TIMEDIFF(out_data.real_time, in_data.real_time)) / 3600, 2) AS duration_hours
+    FROM
+        (
+            SELECT 
+                group_name,
+                Name,
+                `In/Out`,
+                STR_TO_DATE(Time, '%l:%i%p') AS real_time,
+                STR_TO_DATE(Date, '%Y-%m-%d') AS real_date
+            FROM total_hours
+            WHERE `In/Out` = 'in'
+        ) AS in_data
+    JOIN
+        (
+            SELECT 
+                group_name,
+                Name,
+                `In/Out`, 
+                STR_TO_DATE(Time, '%l:%i%p') AS real_time,
+                STR_TO_DATE(Date, '%Y-%m-%d') AS real_date
+            FROM total_hours
+            WHERE `In/Out` = 'out'
+        ) AS out_data
+    ON 
+        in_data.Name = out_data.Name
+        AND in_data.real_date = out_data.real_date
+        AND in_data.group_name = out_data.group_name
+)
+
+-- 第二步：JOIN classes表，取得課程時數
+SELECT
+    a.Name,
+    a.group_name,
+    a.real_date,
+    c.class_name,
+    c.class_hours,
+    a.duration_hours AS attendance_hours
+FROM attendance a
+JOIN classes c
+    ON a.group_name = c.group_name
+    AND a.real_date = c.class_date
+ORDER BY
+    a.Name,
+    a.real_date;
+#################個個學生在各課程的達成率############################
+WITH attendance AS (
+    SELECT
+        in_data.Name,
+        in_data.group_name,
+        in_data.real_date,
+        TIMEDIFF(out_data.real_time, in_data.real_time) AS duration,
+        ROUND(TIME_TO_SEC(TIMEDIFF(out_data.real_time, in_data.real_time)) / 3600, 2) AS duration_hours
+    FROM
+        (
+            SELECT 
+                group_name,
+                Name,
+                `In/Out`,
+                STR_TO_DATE(Time, '%l:%i%p') AS real_time,
+                STR_TO_DATE(Date, '%Y-%m-%d') AS real_date
+            FROM total_hours
+            WHERE `In/Out` = 'in'
+        ) AS in_data
+    JOIN
+        (
+            SELECT 
+                group_name,
+                Name,
+                `In/Out`, 
+                STR_TO_DATE(Time, '%l:%i%p') AS real_time,
+                STR_TO_DATE(Date, '%Y-%m-%d') AS real_date
+            FROM total_hours
+            WHERE `In/Out` = 'out'
+        ) AS out_data
+    ON 
+        in_data.Name = out_data.Name
+        AND in_data.real_date = out_data.real_date
+        AND in_data.group_name = out_data.group_name
+)
+
+SELECT
+    a.Name,
+    a.group_name,
+    c.class_name,
+    SUM(a.duration_hours) AS total_attendance_hours,      -- 學生該課程出勤總時數
+    SUM(c.class_hours) AS total_class_hours,             -- 課程總時數
+    LEAST(ROUND(SUM(a.duration_hours) / SUM(c.class_hours) * 100, 2), 100) AS completion_rate_pct  -- 達成率百分比
+FROM attendance a
+JOIN classes c
+    ON a.group_name = c.group_name
+    AND a.real_date = c.class_date
+GROUP BY
+    a.Name,
+    a.group_name,
+    c.class_name
+ORDER BY
+    a.Name,
+    c.class_name;

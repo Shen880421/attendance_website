@@ -1,0 +1,79 @@
+{% extends "dashboard.inc.twig" %}
+{% block menu %}
+	<div class="list-group">
+		<a href="admin_dashboard.php" class="list-group-item">首頁</a>
+		<a href="admin_dashboard.php?mode=inoutlist&name=Aaron" class="list-group-item active">打卡記錄列表</a>
+		<a href="admin_dashboard.php?mode=createuser" class="list-group-item">創建使用者</a>
+	</div>
+{% endblock %}
+{% block content %}
+	<div class="row">
+		<div class="card">
+            <div class="card-title mt-3">
+                <h3>學員打卡紀錄</h3>
+            </div>
+            <div class="row">
+			<div class="col-sm-4 col-md-5 col-lg-4">
+				<input name="searchbydate" placeholder="yyyy-mm-dd"></input>
+				<button for="searchbydate" type="submit" class="btn btn-outline-info" id="searchBtn">搜尋</button>
+			</div>
+		    </div>
+			<div class="card-body">
+				<table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>學員</th>
+                            <th>In/Out</th>
+                            <th>時間</th>
+                            <th>日期</th>
+                            <th>IP位址</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for info in results %}
+                            <tr>
+                                <td>{{info.Name}}</td>
+                                <td>{{attribute(info, 'In/Out')}}</td>
+                                <td>{{info.Time}}</td>
+                                <td>{{info.Date}}</td>
+                                <td>{{info.IPAddress}}</td>
+                            </tr>
+                        {% endfor %}
+                        
+                    </tbody>
+                </table>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+{% block scripts %}
+<script>
+const studentSelect = document.getElementById('studentSelect');
+
+    // ✅ 初始化選單
+    fetch('student.php')
+        .then(res => res.json())
+        .then(studentList => {
+            studentSelect.innerHTML = '<option selected disabled>選取學生</option>';
+            studentList.forEach(student => {
+                const option = document.createElement('option');
+                option.value = student.name;
+                option.textContent = student.name;
+                studentSelect.appendChild(option);
+            });
+        });
+
+    // ✅ 點選搜尋按鈕
+    document.getElementById('searchBtn').addEventListener('click', function () {
+        const studentname = studentSelect.value;
+        if (!studentname) {
+            alert('請選取學生');
+            return;
+        }
+        const currentURL = new URL(window.location.href);
+        currentURL.searchParams.set('name', studentname);
+        currentURL.searchParams.set('mode', 'inoutlist'); // 確保 mode 也帶著
+        window.location.href = currentURL.toString();
+    });
+</script>
+{% endblock %}
