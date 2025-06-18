@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
     $pwd = $_POST["passwd"];
     // $role = $_POST['role'];
 
-    if (filter_var($acc, FILTER_VALIDATE_EMAIL)) {
+    if (filter_var($acc)) {
         //echo "合法 Email";
         $stmt = $pdo->prepare("select acc, pwd, role from admin_users where acc = :acc and pwd = :pwd");
         $result = $stmt->execute([
@@ -60,10 +60,11 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
             $message = "登入失敗";
             $alert_type = "alert-danger";
         }
-    } else {
-        $message = "帳號電郵格式錯誤";
-        $alert_type = "alert-warning";
     }
+    // else {
+    //     $message = "帳號電郵格式錯誤";
+    //     $alert_type = "alert-warning";
+    // }
 }
 
 echo $twig->render(
