@@ -12,7 +12,9 @@
 
 <body>
     <!--導航列-->
-     {% include "nav.inc.twig" %}
+    {% block nav %}
+    {% include "nav.inc.twig" %}
+    {% endblock %}
     <!--內容區塊-->
     <main class="container-fluid mt-4">
         <!--分成左右2邊的佈區-->
