@@ -50,7 +50,19 @@ flowchart TD
 | acc   | VARCHAR         | 帳號     |
 | pwd   | VARCHAR         | 密碼  |
 | role  | enum('admin', 'adv-user', 'normal-user')| 用來限制使用者權限  |
+###  出缺席紀錄原始檔 – `attendance_log`
 
+| 欄位名稱        | 資料型別 | 說明           |
+|------------     |---------|----------------|
+| id              | INT     | 主鍵           |
+| name            | VARCHAR | 學員姓名        |
+| class_date      | date    | 上課日期        |
+| class_hours     | float   | 課程時數        |
+| raw_hours       | float   | 在校時間        |
+| attended_hours  | float   | 上課時數        |
+| late_hours      | float   | 遲到時數        |
+| leave_early_hours| float  | 早退時數        |
+| absent_hours    | float   | 未到時數        |
 
 ### 👥 工作分工
 
