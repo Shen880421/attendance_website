@@ -1,4 +1,5 @@
 # 📘 團體專案 – 出缺勤系統
+
 ## 🧭 系統流程圖
 
 ```mermaid
@@ -15,6 +16,7 @@ flowchart TD
 ```
 
 ## 🏗️ 系統架構圖
+
 ```mermaid
 flowchart TD
     A[使用者瀏覽器] --> B[前端系統]
@@ -23,7 +25,8 @@ flowchart TD
 ```
 
 📦 資料表結構
-###  課程資料 – `classes`
+
+### 課程資料 – `classes`
 
 | 欄位名稱     | 資料型別 | 說明     |
 |--------------|----------|----------|
@@ -33,7 +36,7 @@ flowchart TD
 | class_hours  | INT      | 課程時數  |
 | class_name   | VARCHAR  | 課程名稱  |
 
-###  打卡記錄原始檔 – `total_hours`
+### 打卡記錄原始檔 – `total_hours`
 
 | 欄位名稱   | 資料型別 | 說明           |
 |------------|----------|----------------|
@@ -43,14 +46,17 @@ flowchart TD
 | Time       | VARCHAR  | 打卡時間         |
 | Date       | VARCHAR  | 打卡日期         |
 |IPAddress   | VARCHAR  | 打卡IP          |
+
 ### 使用者 - `admin_users`
+
 | 欄位名稱     | 資料型別 | 說明     |
 |--------------|----------|----------|
 | no           | INT      | 主鍵     |
 | acc   | VARCHAR         | 帳號     |
 | pwd   | VARCHAR         | 密碼  |
 | role  | enum('admin', 'adv-user', 'normal-user')| 用來限制使用者權限  |
-###  出缺席紀錄原始檔 – `attendance_log`
+
+### 出缺席紀錄原始檔 – `attendance_log`
 
 | 欄位名稱        | 資料型別 | 說明           |
 |------------     |---------|----------------|
