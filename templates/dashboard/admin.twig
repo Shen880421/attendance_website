@@ -1,1 +1,165 @@
 {% extends "dashboard.inc.twig" %}
+{% block menu %}
+	<div class="list-group">
+        <a href="admin_dashboard.php" class="list-group-item active">首頁</a>
+        <a href="admin_dashboard.php?mode=inoutlist&name=Aaron" class="list-group-item">打卡記錄列表</a>
+        <a href="admin_dashboard.php?mode=createuser" class="list-group-item">創建使用者</a>
+    </div>
+{% endblock %}
+{% block scripts %}
+<script>
+let myChart = null;
+function updateChart(data) {
+    const ctx = document.getElementById('courseChart').getContext('2d');
+
+    if (myChart) {
+        myChart.destroy();
+    }
+// updataChart()是用來重製圖表的
+
+    const labels = data.map(item => item.class_name);
+    const totalHours = data.map(item => parseInt(item.total_class_hours));
+    const completionRates = data.map(item => parseFloat(item.completion_rate_pct));
+    const completedHours = totalHours.map((hours, i) => hours * (completionRates[i] / 100));
+    const remainingHours = totalHours.map((hours, i) => hours - completedHours[i]);
+
+    myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: '已完成時數',
+                    data: completedHours,
+                    backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1,
+                },
+                {
+                    label: '未完成時數',
+                    data: remainingHours,
+                    backgroundColor: 'rgba(201, 203, 207, 0.6)',
+                    borderColor: 'rgba(201, 203, 207, 1)',
+                    borderWidth: 1,
+                }
+            ]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            scales: {
+                x: {
+                    stacked: true,
+                    beginAtZero: true,
+                    title: { display: true, text: '時數 (小時)' }
+                },
+                y: {
+                    stacked: true,
+                    title: { display: true, text: '課程名稱' }
+                }
+            },
+            interaction: {
+                mode: 'nearest',
+                axis: 'y',
+                intersect: false
+            },
+            plugins: {
+                tooltip: {
+                    mode: 'index',
+                    intersect: false
+                },
+                legend: {
+                    position: 'top'
+                }
+            }
+        }
+    });
+}
+
+// ✅ 當 DOM 載入後
+document.addEventListener('DOMContentLoaded', function () {
+    const classhours = document.getElementById("classhours");
+    const classEl = document.getElementById("class");
+    const days = document.getElementById("days");
+    const attendancerate = document.getElementById("attendancerate");
+    const laterate = document.getElementById("laterate");
+    const leave_earlyrate = document.getElementById("leave_earlyrate");
+    const inschoolavrage = document.getElementById("inschoolavrage");
+
+    // 先抓學生選擇器的預設值（第一次載入時選定第一位）
+    const studentSelect = document.getElementById('studentSelect');
+
+    // ✅ 初始化選單
+    fetch('student.php')
+        .then(res => res.json())
+        .then(studentList => {
+            studentSelect.innerHTML = '<option selected disabled>選取學生</option>';
+            studentList.forEach(student => {
+                const option = document.createElement('option');
+                option.value = student.name;
+                option.textContent = student.name;
+                studentSelect.appendChild(option);
+            });
+        });
+
+    // ✅ 點選搜尋按鈕
+    document.getElementById('searchBtn').addEventListener('click', function () {
+        const studentname = studentSelect.value;
+        if (!studentname) {
+            alert('請選取學生');
+            return;
+        }
+
+        // 彙總統計數據
+        fetch('sumdataforchart.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name: studentname })
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (!data || Object.keys(data).length === 0 || data.error) {
+                    alert('查無該學生的統計資料');
+                    return;
+                }
+                //console.log('真正的資料:',  data);
+
+                classhours.innerHTML = `${parseFloat( data.class_hours).toFixed(2)} 小時`;
+                classEl.innerHTML = `${parseFloat( data.attended_hours).toFixed(2)} 小時`;
+                days.innerHTML = `${ data.days} 天`;
+
+                const attendanceratenum = parseInt((parseFloat( data.attended_hours) / parseFloat( data.class_hours)) * 100);
+                attendancerate.innerHTML = `${attendanceratenum}%`;
+
+                const lateratecal = (parseFloat( data.late_hours) / parseFloat( data.class_hours)) * 100;
+                laterate.innerHTML = `${lateratecal.toFixed(2)}%`;
+
+                const leave_earlyratecal = (parseFloat( data.leave_early_hours) / parseFloat( data.class_hours)) * 100;
+                leave_earlyrate.innerHTML = `${leave_earlyratecal.toFixed(2)}%`;
+
+                const inschoolavragecal = parseFloat(parseInt( data.raw_hours) / parseInt( data.days));
+                inschoolavrage.innerHTML = `${inschoolavragecal.toFixed(2)} 小時`;
+                
+            });
+
+        // 圖表資料
+        fetch('sumclassdata.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: studentname })
+        })
+            .then(res => res.json())
+            .then(data => {
+                console.log("資料內容：", data);
+                updateChart(data);
+            })
+            .catch(err => {
+                console.error('取得圖表資料錯誤:', err);
+            });
+    });
+});
+</script>
+
+{% endblock %}

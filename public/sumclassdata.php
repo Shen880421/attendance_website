@@ -11,6 +11,8 @@ require_once '../inc/db.inc.php'; // 請根據實際路徑修改
 // }
 
 // 安全查詢資料庫
+$input = json_decode(file_get_contents('php://input'), true);
+$name = $input['name']; // 從 fetch 傳入的 name
 $sql = "WITH attendance AS (
         SELECT
             in_data.Name,
@@ -67,8 +69,8 @@ $sql = "WITH attendance AS (
             c.class_name;";
 
 $stmt = $pdo->prepare($sql);
-$stmt->execute(['name' => 'Shen']);
+$stmt->execute(['name' => $name]);
 
 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-echo json_encode($data);
+echo json_encode($data, JSON_UNESCAPED_UNICODE);

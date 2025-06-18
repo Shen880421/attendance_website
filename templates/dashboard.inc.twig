@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>出勤紀錄</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="../wannabakery-test\wannabakery.css" rel="stylesheet">
+    
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
@@ -19,7 +19,9 @@
         <div class="row">
             <div class="col-md-2">
                 <!--左側選單列-->
-                 {% include "menu.inc.twig" %}
+                {% block menu %}
+                {% include "menu.inc.twig" %}
+                {% endblock %}
             </div>
             <div class="col-md-10">
                 {% block content %}
@@ -69,161 +71,11 @@
     
     <!-- 載入Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!-- 載入 Chart.js Data Labels 插件（如果想顯示標籤） -->
+    <!-- 載入 Chart.js Data Labels 插件（如果想顯示標籤） -->
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
-    <!-- 抓取時數 -->
-    {% block scripts %}
-    <script>
-        const classhours = document.getElementById("classhours");
-        const classEl = document.getElementById("class"); // 避免與保留字 class 衝突
-        const days = document.getElementById("days");
-        const attendancerate = document.getElementById("attendancerate");
-        const laterate = document.getElementById("laterate");
-        const leave_earlyrate = document.getElementById("leave_earlyrate");
-        const inschoolavrage = document.getElementById("inschoolavrage");
-
-        fetch('sumdataforchart.php')
-            .then(res => res.json())
-            .then(data => {
-            const hours = data[0]; // 回傳的只有一筆資料（彙總）
-
-            classhours.innerHTML = `${parseFloat(hours.class_hours).toFixed(2)} 小時`;
-            classEl.innerHTML = `${parseFloat(hours.attended_hours).toFixed(2)} 小時`;
-            days.innerHTML = `${hours.days} 天`; // 新增的天數欄位
-
-            const attendanceratenum = parseInt((parseFloat(hours.attended_hours) / parseFloat(hours.class_hours)) * 100);
-            attendancerate.innerHTML = `${attendanceratenum}%`;
-
-            const lateratecal = (parseFloat(hours.late_hours) / parseFloat(hours.class_hours)) * 100;
-            laterate.innerHTML = `${lateratecal.toFixed(2)}%`;
-
-            const leave_earlyratecal = (parseFloat(hours.leave_early_hours) / parseFloat(hours.class_hours)) * 100;
-            leave_earlyrate.innerHTML = `${leave_earlyratecal.toFixed(2)}%`;
-
-            const inschoolavragecal = parseFloat(parseInt(hours.raw_hours) / parseInt(hours.days)); // 平均每天出席時數
-            inschoolavrage.innerHTML = `${inschoolavragecal.toFixed(2)} 小時`;
-        });
-    </script>
-    // 課程時數柱狀圖
-    <script>
-        fetch('sumclassdata.php')
-        .then(res => res.json())
-        .then(data => {
-            const labels = data.map(item => item.class_name);
-            const totalHours = data.map(item => parseInt(item.total_class_hours));
-            const completionRates = data.map(item => parseFloat(item.completion_rate_pct));
-            const completedHours = totalHours.map((hours, i) => hours * (completionRates[i] / 100));
-            const remainingHours = totalHours.map((hours, i) => hours - completedHours[i]);
-
-            const ctx = document.getElementById('courseChart').getContext('2d');
-
-            const percentagePlugin = {
-                id: 'percentagePlugin',
-                afterDatasetsDraw(chart, args, options) {
-                    const {ctx, data, scales: {x, y}} = chart;
-                    ctx.save();
-                    ctx.fillStyle = 'black';
-                    ctx.textAlign = 'left';
-                    ctx.textBaseline = 'middle';
-                    ctx.font = 'bold 12px Arial';
-
-                    data.datasets[0].data.forEach((completedVal, i) => {
-                        const total = completedVal + data.datasets[1].data[i];
-                        if (total === 0) return; // 避免除以0
-
-                        const rate = ((completedVal / total) * 100).toFixed(2) + '%';
-
-                        // x座標為該堆疊bar右邊界再稍微往右一點
-                        const xPos = x.getPixelForValue(total) + 5;
-                        const yPos = y.getPixelForValue(i);
-
-                        ctx.fillText(rate, xPos, yPos);
-                    });
-
-                    ctx.restore();
-                }
-            };
-
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: '已完成時數',
-                            data: completedHours,
-                            backgroundColor: 'rgba(54, 162, 235, 0.8)',
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            borderWidth: 1,
-                        },
-                        {
-                            label: '未完成時數',
-                            data: remainingHours,
-                            backgroundColor: 'rgba(201, 203, 207, 0.6)',
-                            borderColor: 'rgba(201, 203, 207, 1)',
-                            borderWidth: 1,
-                        }
-                    ]
-                },
-                options: {
-                    indexAxis: 'y',  // 水平條形圖
-                    responsive: true,
-                    scales: {
-                        x: {
-                        stacked: true,
-                        beginAtZero: true,
-                        title: { display: true, text: '時數 (小時)' }
-                        },
-                        y: {
-                        stacked: true,
-                        title: { display: true, text: '課程名稱' }
-                        }
-                    },
-                    interaction: {
-                        mode: 'nearest', // 或 'index'
-                        axis: 'y',      // 僅沿 y 軸（上下）
-                        intersect: false
-                    },
-                    plugins: {
-                        tooltip: {
-                        mode: 'index',
-                        intersect: false
-                        },
-                        legend: {
-                        position: 'top'
-                        }
-                    }
-                },
-                animation: {
-                    onComplete: function(chart) {
-                        const { ctx, data, chartArea: { top, bottom, left, right }, scales: { x, y } } = chart;
-                        ctx.save();
-                        ctx.fillStyle = 'black';
-                        ctx.textAlign = 'left';
-                        ctx.textBaseline = 'middle';
-                        ctx.font = 'bold 12px Arial';
-
-                        data.datasets[0].data.forEach((completedVal, i) => {
-                            const total = completedVal + data.datasets[1].data[i];
-                            if (total === 0) return; // 避免除以0錯誤
-
-                            const rate = ((completedVal / total) * 100).toFixed(2) + '%';
-
-                            // x座標放在堆疊長度的右邊界稍微偏右5像素
-                            const xPos = x.getPixelForValue(total) + 5;
-                            // y座標為第 i 條 bar 的中心位置
-                            const yPos = y.getPixelForValue(i);
-
-                            ctx.fillText(rate, xPos, yPos);
-                        });
-
-                        ctx.restore();
-                    }
-                }
-            });
-        });
-    </script>
     
+    {% block scripts %}
+
     {% endblock %}
 </body>
 
