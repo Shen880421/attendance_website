@@ -1,5 +1,11 @@
 {% extends "dashboard.inc.twig" %}
-
+{% block menu %}
+	<div class="list-group">
+		<a href="admin_dashboard.php" class="list-group-item">首頁</a>
+		<a href="admin_dashboard.php?mode=inoutlist&name=Aaron&date=2025-04-15" class="list-group-item">打卡記錄列表</a>
+		<a href="admin_dashboard.php?mode=userlist" class="list-group-item active">使用者列表</a>
+	</div>
+{% endblock %}
 {% block content %}
 	<h4>刪除使用者確認</h4>
 	<div class="row">
