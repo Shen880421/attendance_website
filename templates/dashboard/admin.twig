@@ -9,13 +9,13 @@
 {% block scripts %}
 <script>
 let myChart = null;
+let myChart2 = null;
+
 function updateChart(data) {
     const ctx = document.getElementById('courseChart').getContext('2d');
-
     if (myChart) {
         myChart.destroy();
     }
-// updataChart()是用來重製圖表的
 
     const labels = data.map(item => item.class_name);
     const totalHours = data.map(item => parseInt(item.total_class_hours));
@@ -76,7 +76,6 @@ function updateChart(data) {
     });
 }
 
-// ✅ 當 DOM 載入後
 document.addEventListener('DOMContentLoaded', function () {
     const classhours = document.getElementById("classhours");
     const classEl = document.getElementById("class");
@@ -85,11 +84,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const laterate = document.getElementById("laterate");
     const leave_earlyrate = document.getElementById("leave_earlyrate");
     const inschoolavrage = document.getElementById("inschoolavrage");
-
-    // 先抓學生選擇器的預設值（第一次載入時選定第一位）
     const studentSelect = document.getElementById('studentSelect');
 
-    // ✅ 初始化選單
+    // 初始化學生選單
     fetch('student.php')
         .then(res => res.json())
         .then(studentList => {
@@ -102,7 +99,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
 
-    // ✅ 點選搜尋按鈕
+    // 搜尋按鈕事件
     document.getElementById('searchBtn').addEventListener('click', function () {
         const studentname = studentSelect.value;
         if (!studentname) {
@@ -110,56 +107,148 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        // 彙總統計數據
+        // 取得統計數據
         fetch('sumdataforchart.php', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ name: studentname })
         })
-            .then(res => res.json())
-            .then(data => {
-                if (!data || Object.keys(data).length === 0 || data.error) {
-                    alert('查無該學生的統計資料');
-                    return;
+        .then(res => res.json())
+        .then(data => {
+            if (!data || Object.keys(data).length === 0 || data.error) {
+                alert('查無該學生的統計資料');
+                return;
+            }
+
+            classhours.innerHTML = `${parseFloat(data.class_hours).toFixed(2)} 小時`;
+            classEl.innerHTML = `${parseFloat(data.attended_hours).toFixed(2)} 小時`;
+            days.innerHTML = `${data.days} 天`;
+
+            const attendanceratenum = parseInt((parseFloat(data.attended_hours) / parseFloat(data.class_hours)) * 100);
+            attendancerate.innerHTML = `${attendanceratenum}%`;
+
+            const lateratecal = (parseFloat(data.late_hours) / parseFloat(data.class_hours)) * 100;
+            laterate.innerHTML = `${lateratecal.toFixed(2)}%`;
+
+            const leave_earlyratecal = (parseFloat(data.leave_early_hours) / parseFloat(data.class_hours)) * 100;
+            leave_earlyrate.innerHTML = `${leave_earlyratecal.toFixed(2)}%`;
+
+            const inschoolavragecal = parseFloat(parseInt(data.raw_hours) / parseInt(data.days));
+            inschoolavrage.innerHTML = `${inschoolavragecal.toFixed(2)} 小時`;
+
+            // 定義 ctx2
+            const ctx2 = document.getElementById('myAttenChart').getContext('2d');
+
+            // 顯示圓餅圖
+            if (myChart2) {
+                myChart2.destroy();
+            }
+            myChart2 = new Chart(ctx2, {
+                type: 'pie',
+                data: {
+                    labels: ['出席', '缺席'],
+                    datasets: [{
+                        label: '出缺席',
+                        data: [
+                            parseFloat(data.attended_hours).toFixed(2),
+                            parseFloat(data.absent_hours).toFixed(2)
+                        ],
+                        backgroundColor: [
+                            'rgba(75, 192, 192, 0.6)',
+                            'rgba(255, 99, 132, 0.6)'
+                        ],
+                        borderWidth: 0
+                    }]
                 }
-                //console.log('真正的資料:',  data);
-
-                classhours.innerHTML = `${parseFloat( data.class_hours).toFixed(2)} 小時`;
-                classEl.innerHTML = `${parseFloat( data.attended_hours).toFixed(2)} 小時`;
-                days.innerHTML = `${ data.days} 天`;
-
-                const attendanceratenum = parseInt((parseFloat( data.attended_hours) / parseFloat( data.class_hours)) * 100);
-                attendancerate.innerHTML = `${attendanceratenum}%`;
-
-                const lateratecal = (parseFloat( data.late_hours) / parseFloat( data.class_hours)) * 100;
-                laterate.innerHTML = `${lateratecal.toFixed(2)}%`;
-
-                const leave_earlyratecal = (parseFloat( data.leave_early_hours) / parseFloat( data.class_hours)) * 100;
-                leave_earlyrate.innerHTML = `${leave_earlyratecal.toFixed(2)}%`;
-
-                const inschoolavragecal = parseFloat(parseInt( data.raw_hours) / parseInt( data.days));
-                inschoolavrage.innerHTML = `${inschoolavragecal.toFixed(2)} 小時`;
-                
             });
+        });
 
-        // 圖表資料
+        // 取得課程資料並更新長條圖
         fetch('sumclassdata.php', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ name: studentname })
         })
-            .then(res => res.json())
-            .then(data => {
-                console.log("資料內容：", data);
-                updateChart(data);
-            })
-            .catch(err => {
-                console.error('取得圖表資料錯誤:', err);
-            });
+        .then(res => res.json())
+        .then(data => {
+            updateChart(data);
+        })
+        .catch(err => {
+            console.error('取得圖表資料錯誤:', err);
+        });
     });
 });
 </script>
 
+
+    <script>// 每日上課時間折線圖
+        const ctx_ct = document.getElementById('myclasstimeChart');
+        const ctx_at = document.getElementById('myattentimeChart');
+        let mylinechart;
+        async function linechart() {
+            try {
+                const response = await fetch('hoursline.json');
+                if (!response.ok) {
+                    throw new Error(response.status);
+                }
+                const res = await response.json();
+                console.log(typeof (res));
+                console.log(res);
+                const classdate = res.map(item => item.class_date);
+                const classhours = res.map(item => item.class_hours);
+                const attenhours = res.map(item => item.raw_hours);
+
+                mylinechart = new Chart(ctx_ct, {
+                    type: 'line',
+                    data: {
+                        labels: classdate,
+                        datasets: [{
+                            label: '每日上課時間',
+                            data: classhours,
+                            backgroundColor: [
+                                'rgba(75, 192, 192, 0.6)', // 綠色
+                            ],
+                            borderColor: 'rgba(75, 192, 192, 0.6)'
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true // Y 軸從 0 開始
+                            }
+                        }
+                    }
+                });
+            // 每日在校時間折線圖
+                new Chart(ctx_at, {
+                    type: 'line',
+                    data: {
+                        labels: classdate,
+                        datasets: [{
+                            label: '每日在校時間折線圖',
+                            data: attenhours,
+                            backgroundColor: [
+                                'rgba(75, 192, 192, 0.6)', // 綠色
+                            ],
+                            borderColor: 'rgba(75, 192, 192, 0.6)'
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true // Y 軸從 0 開始
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error(error);
+            }
+
+        }
+
+        
+
+        window.onload = linechart;
+    </script>
 {% endblock %}
