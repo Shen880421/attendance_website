@@ -51,16 +51,16 @@
 		<div class="col-12 col-sm-12 col-md-12">
 			<div class="card shadow-sm">
 				<div class="card-body">
-					<form method="post" action="bk-product.php?mode=savedata" enctype="multipart/form-data">
+					<form method="post" action="admin_dashboard.php?mode=savedata" enctype="multipart/form-data">
 						<div>
 							{% for info in results %}
 								<label class="mt-3">學員</label>
-								<input type="text" class="form-control" name="pid" value="{{info.Name}}" readonly>
+								<input type="text" class="form-control" name="name" value="{{info.Name}}" readonly>
 							{% endfor %}
 						</div>
 						<div class="col-sm-4 col-md-5 col-lg-4">
 							<label class="mt-3">In/Out</label>
-							<select id="inout" class="form-select">
+							<select id="inout" class="form-select" name="inout">
 								<option selected>選擇打卡狀態</option>
 								<option value="in">in</option>
 								<option value="out">out</option>
@@ -68,15 +68,15 @@
 						</div>
 						<div>
 							<label class="mt-3">時間</label>
-							<input type="text" class="form-control" name="pprice" placeholder="H:MMA/PM 範例:8:10PM">
+							<input type="text" class="form-control" name="time" placeholder="H:MMA/PM 範例:8:10PM">
 						</div>
 						<div>
 							<label class="mt-3">日期</label>
-							<input type="text" class="form-control" name="pstock" placeholder="YYYY-MM-DD 範例:2025-04-18">
+							<input type="text" class="form-control" name="date" placeholder="YYYY-MM-DD 範例:2025-04-18">
 						</div>
 						<div>
 							<label class="mt-3">IP位址</label>
-							<input type="text" class="form-control" name="pdesc">
+							<input type="text" class="form-control" name="IP">
 						</div>
 						<div class="d-grid gap-2">
 							<button class="btn btn-outline-primary mt-4" type="submit">新增</button>

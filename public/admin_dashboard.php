@@ -69,6 +69,49 @@ switch ($mode) {
 
         $tmplFile = "/dashboard/insertdata.twig";
         break;
+    case 'savedata':
+    // 確認是否有收到 POST 資料
+    if (!isset($_POST['name'], $_POST['inout'], $_POST['time'], $_POST['date'], $_POST['IP'])) {
+        die("缺少必要欄位");
+    }
+    $name = trim($_POST['name']);
+    $inout = trim($_POST['inout']);
+    $time = trim($_POST['time']);
+    $date = trim($_POST['date']);
+    $ip = trim($_POST['IP']);
+
+    // 驗證基本格式（可選）
+    if (!in_array($inout, ['in', 'out'])) {
+        die("打卡狀態只能是 in 或 out");
+    }
+
+    try {
+        $stmt = $pdo->prepare("
+            INSERT INTO total_hours (group_name, Name, `In/Out`, Time, Date, IPAddress)
+            VALUES (:group_name, :name, :inout, :time, :date, :ip)
+        ");
+        $stmt->execute([
+            ':group_name' => 'FS101',
+            ':name' => $name,
+            ':inout' => $inout,
+            ':time' => $time,
+            ':date' => $date,
+            ':ip' => $ip
+        ]);
+
+
+
+    } catch (PDOException $e) {
+        die("資料新增失敗: " . $e->getMessage());
+    }
+        $data["message"] = "你新增了 " . $name . " 的 " . $stmt->rowCount() . " 筆資料。稍後自動跳轉<br>";
+        $data["alert_type"] = "alert-success";
+        $data["name"] = $name;
+        $data["date"] = $date;
+        $tmplFile = "/dashboard/message.twig";
+        break;
+    break;
+
     case 'deletedata':
         try {
             $stmt = $pdo->prepare("DELETE FROM total_hours 
@@ -88,7 +131,7 @@ switch ($mode) {
         $data["message"] = "你移除了 " . $_GET['name'] . " 的 " . $stmt->rowCount() . " 筆資料。稍後自動跳轉<br>";
         $data["alert_type"] = "alert-success";
         $data["name"] = $_GET['name'];
-        $data["date"] = $_GET['search_date'] ?? $_GET['date'];
+        $data["date"] = $_GET['date'];
         $tmplFile = "/dashboard/message.twig";
         break;
 
