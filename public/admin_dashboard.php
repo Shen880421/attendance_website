@@ -16,6 +16,7 @@ if (isset($_SESSION['backend_login_flag']) && $_SESSION['backend_login_flag'] ==
 }
 //用來判斷要用什麼版型渲染的變數
 $mode = "";
+
 if (isset($_GET['mode']) && $_GET['mode'] != "") {
     $mode = $_GET['mode'];
 }
@@ -46,7 +47,7 @@ switch ($mode) {
         break;
     case 'insertdata':
         $name = $_GET['name'] ?? '';
-        
+
         if (!$name) {
             die("缺少學生名稱");
         }
@@ -59,16 +60,38 @@ switch ($mode) {
         ");
         $stmt->execute([
             ':name' => $name,
-            
+
         ]);
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $data['results'] = $results;  // 你剛剛的查詢結果
         $data['student'] = $name;
-        
-        
+
+
         $tmplFile = "/dashboard/insertdata.twig";
         break;
-    
+    case 'deletedata':
+        try {
+            $stmt = $pdo->prepare("DELETE FROM total_hours 
+            WHERE Name = :name AND `In/Out` = :inout AND Time = :time AND Date = :date");
+            
+            $stmt->execute([
+                ":name"  => $_GET['name'],
+                ":inout" => $_GET['inout'],
+                ":time"  => $_GET['time'],
+                ":date"  => $_GET['date']
+            ]);
+
+           
+        } catch (PDOException $e) {
+            die("資料刪除失敗: " . $e->getMessage());
+        }
+        $data["message"] = "你移除了 " . $_GET['name'] . " 的 " . $stmt->rowCount() . " 筆資料。稍後自動跳轉<br>";
+        $data["alert_type"] = "alert-success";
+        $data["name"] = $_GET['name'];
+        $data["date"] = $_GET['search_date'] ?? $_GET['date'];
+        $tmplFile = "/dashboard/message.twig";
+        break;
+
     case 'createuser':
         $tmplFile = "dashboard/createuser.twig";
         break;
