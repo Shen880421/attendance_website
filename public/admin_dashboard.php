@@ -45,7 +45,27 @@ switch ($mode) {
         $tmplFile = "/dashboard/inoutlist.twig";
         break;
     case 'insertdata':
-
+        $name = $_GET['name'] ?? '';
+        
+        if (!$name) {
+            die("缺少學生名稱");
+        }
+        // 查詢資料（不分頁，查出從該日期之後所有資料）
+        $stmt = $pdo->prepare("
+            SELECT Name, COUNT(*) 
+            FROM total_hours
+            WHERE Name = :name
+            GROUP BY Name;
+        ");
+        $stmt->execute([
+            ':name' => $name,
+            
+        ]);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $data['results'] = $results;  // 你剛剛的查詢結果
+        $data['student'] = $name;
+        
+        
         $tmplFile = "/dashboard/insertdata.twig";
         break;
     
