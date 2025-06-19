@@ -1,0 +1,95 @@
+{% extends "dashboard.inc.twig" %}
+{% block content %}
+	<h4>使用者列表</h4>
+	<div class="row">
+		<div class="col-12 col-sm-12 col-md-12">
+			<div class="card shadow-sm">
+				<div class="card-body">
+					{% if message %}
+						<div class="alert {{alert_type}} alert-dismissible fade show" role="alert">
+							{{message}}
+							<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+						</div>
+					{% endif %}
+
+					<div class="table-responsive">
+						<table class="table table-hover">
+							<thead class="table-dark">
+								<tr>
+									<th>ID</th>
+									<th>帳號</th>
+									<th>身分別</th>
+									<th>註冊時間</th>
+									<th>操作</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for user in users %}
+									<tr>
+										<td>{{ user.no }}</td>
+										<td>{{ user.acc }}</td>
+										<td>
+											{% if user.role == 'admin' %}
+												<span class="badge bg-danger">系統管理員</span>
+											{% elseif user.role == 'adv-user' %}
+												<span class="badge bg-warning text-dark">企業管理者</span>
+											{% else %}
+												<span class="badge bg-secondary">一般學員</span>
+											{% endif %}
+										</td>
+										<td>
+											{% if user.created_at %}
+												{{ user.created_at|date('Y-m-d H:i') }}
+											{% else %}
+												未記錄
+											{% endif %}
+										</td>
+										<td>
+											<!-- 操作按鈕 -->
+											<div class="btn-group" role="group" aria-label="User actions">
+												<a href="admin_dashboard.php?mode=edituser&uid={{user.no}}" class="btn btn-sm btn-outline-primary" title="編輯使用者">
+													<i class="fas fa-edit"></i>
+													編輯
+												</a>
+												{% if user.acc != useracc %}
+													<a href="admin_dashboard.php?mode=deleteuser&uid={{user.no}}" class="btn btn-sm btn-outline-danger" title="刪除使用者" onclick="return confirm('您確定要刪除使用者「{{ user.acc }}」嗎？')">
+														<i class="fas fa-trash"></i>
+														刪除
+													</a>
+												{% else %}
+													<button class="btn btn-sm btn-outline-secondary" disabled title="不能刪除自己的帳號">
+														<i class="fas fa-lock"></i>
+														自己
+													</button>
+												{% endif %}
+											</div>
+										</td>
+									</tr>
+								{% else %}
+									<tr>
+										<td colspan="5" class="text-center text-muted">
+											<i class="fas fa-users"></i>
+											暫無使用者資料
+										</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row mt-3">
+		<div class="col-12">
+			<a href="admin_dashboard.php?mode=createuser" class="btn btn-primary">
+				<i class="fas fa-plus"></i>
+				新增使用者
+			</a>
+			<a href="admin_dashboard.php" class="btn btn-secondary">
+				<i class="fas fa-arrow-left"></i>
+				返回儀表板
+			</a>
+		</div>
+	</div>
+{% endblock %}
