@@ -39,6 +39,12 @@
                         
                     </tbody>
                 </table>
+                <div>
+                    <div class="btn-group" role="group" aria-label="Basic outlined example" id="updatebtn">
+                        <a href="admin_dashboard.php?mode=insertdata&name=Aaron" type="button" class="btn btn-outline-primary" id="insertdata">新增資料</a>
+                <a href="admin_dashboard.php?mode=deletedata&name=Aaron" type="button" class="btn btn-outline-primary" id="deletedata">刪除資料</a>
+                    </div>
+                </div>
 			</div>
 		</div>
 	</div>
@@ -48,6 +54,8 @@
 const studentSelect = document.getElementById('studentSelect');
 const searchBtn = document.getElementById('searchBtn');
 const dateInput = document.getElementById('inoutDate');
+
+
 
 // 初始化學生選單
 fetch('student.php')
@@ -95,6 +103,7 @@ searchBtn.addEventListener('click', function () {
     .then(res => res.json())
     .then(data => {
         const tableBody = document.querySelector('.table tbody');
+        const updatebtn = document.getElementById('updatebtn');
         tableBody.innerHTML = '';
 
         if (data.length === 0) {
@@ -112,6 +121,11 @@ searchBtn.addEventListener('click', function () {
                 <td>${row.Time}</td>
                 <td>${row.Date}</td>
                 <td>${row.IPAddress}</td>
+            `;
+            updatebtn.innerHTML=`
+                <a href="admin_dashboard.php?mode=insertdata&name=${row.Name}" type="button" class="btn btn-outline-primary" id="insertdata">新增資料</a>
+                <a href="admin_dashboard.php?mode=deletedata&name=${row.Name}" type="button" class="btn btn-outline-primary" id="deletedata">刪除資料</a>
+                
             `;
             tableBody.appendChild(tr);
         });

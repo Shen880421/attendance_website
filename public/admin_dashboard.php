@@ -23,41 +23,32 @@ switch ($mode) {
     case 'inoutlist':
         $name = $_GET['name'] ?? '';
         $date = $_GET['date'] ?? ''; // 起始日期
-        // var_dump($name);
-        // var_dump($date);
         if (!$name || !$date) {
             die("缺少學生名稱或日期");
         }
-
         // 查詢資料（不分頁，查出從該日期之後所有資料）
         $stmt = $pdo->prepare("
             SELECT group_name, Name, `In/Out`, Time, Date, IPAddress
             FROM total_hours
             WHERE Name = :name AND DATE(Date) >= :date
             ORDER BY Date DESC, Time DESC
+            LIMIT 0, 10;
         ");
         $stmt->execute([
             ':name' => $name,
             ':date' => $date,
         ]);
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        // if (empty($results)) {
-        //     echo "❌ 查無資料";
-        //     var_dump($name);
-        //     var_dump($date);
-        // } else {
-        //     echo "✅ 找到資料";
-        //     var_dump($results);
-        // }
-
         $data['results'] = $results;  // 你剛剛的查詢結果
         $data['student'] = $name;
         $data['date'] = $date;
-
         $tmplFile = "/dashboard/inoutlist.twig";
         break;
+    case 'insertdata':
 
+        $tmplFile = "/dashboard/insertdata.twig";
+        break;
+    
     case 'createuser':
         $tmplFile = "dashboard/createuser.twig";
         break;

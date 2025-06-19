@@ -1,0 +1,49 @@
+{% extends "dashboard.inc.twig" %}
+{% block nav %}
+	{% include "nav_admin.twig" %}
+{% endblock %}
+{% block menu %}
+	<div class="list-group">
+		<a href="admin_dashboard.php" class="list-group-item">首頁</a>
+		<a href="admin_dashboard.php?mode=inoutlist&name=Aaron&date=2025-04-15" class="list-group-item active">打卡記錄列表</a>
+		<a href="admin_dashboard.php?mode=createuser" class="list-group-item">創建使用者</a>
+	</div>
+{% endblock %}
+{% block content %}
+	<h4>新增資料</h4>
+	<div class="row">
+		<div class="col-12 col-sm-12 col-md-12">
+			<div class="card shadow-sm">
+				<div class="card-body">
+					<form method="post" action="bk-product.php?mode=savedata" enctype="multipart/form-data">
+						<div>
+							<label>學員</label>
+							<input type="text" class="form-control" name="pid" value="{{result.id}}" readonly>
+						</div>
+						<div class="col-sm-4 col-md-5 col-lg-4">
+							<label>In/Out</label>
+							<select id="inout" class="form-select">
+								<option selected>選擇打卡狀態</option>
+								<option value="in">in</option>
+								<option value="out">out</option>
+							</select>
+						</div>
+						<div>
+							<label>時間</label>
+							<input type="text" class="form-control" name="pprice" value="{{result.price}}" placeholder="H:MMA/PM">
+						</div>
+						<div>
+							<label>日期</label>
+							<input type="text" class="form-control" name="pstock" value="{{result.stock}}" placeholder="YYYY-MM-DD">
+						</div>
+						<div>
+							<label>IP位址</label>
+								<input type="text" class="form-control" name="pdesc" value="{{result.description}}">
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	{% endblock %}

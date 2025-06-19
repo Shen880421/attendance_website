@@ -16,7 +16,8 @@ if ($date) {
     $sql = "SELECT group_name, Name, `In/Out`, Time, Date, IPAddress
             FROM total_hours
             WHERE Name = :name AND Date >= :date
-            ORDER BY Date, Time";
+            ORDER BY Date, Time
+            LIMIT 0, 10";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([
         ':name' => $name,
@@ -26,7 +27,8 @@ if ($date) {
     $sql = "SELECT group_name, Name, `In/Out`, Time, Date, IPAddress
             FROM total_hours
             WHERE Name = :name
-            ORDER BY Date, Time";
+            ORDER BY Date, Time
+            LIMIT 0, 10";
     $stmt = $pdo->prepare($sql);
     $stmt->execute([':name' => $name]);
 }
