@@ -21,41 +21,40 @@ if (isset($_GET['mode']) && $_GET['mode'] != "") {
 }
 switch ($mode) {
     case 'inoutlist':
-        $name = $_GET['name'] ?? ''; // 你需要知道是哪個學生的資料
-        if (!$name) {
-            die("缺少學生名稱");
+        $name = $_GET['name'] ?? '';
+        $date = $_GET['date'] ?? ''; // 起始日期
+        // var_dump($name);
+        // var_dump($date);
+        if (!$name || !$date) {
+            die("缺少學生名稱或日期");
         }
 
+        // 查詢資料（不分頁，查出從該日期之後所有資料）
+        $stmt = $pdo->prepare("
+            SELECT group_name, Name, `In/Out`, Time, Date, IPAddress
+            FROM total_hours
+            WHERE Name = :name AND DATE(Date) >= :date
+            ORDER BY Date DESC, Time DESC
+        ");
+        $stmt->execute([
+            ':name' => $name,
+            ':date' => $date,
+        ]);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // 查詢總筆數
-        
-        if (isset($_GET['page']) && $_GET['page'] != '') {
-            $page = $_GET['page'];
-        } else {
-            $page = 0;
-        }
-        $rows_per_page = 10; //每頁幾筆資料
-        $skip = $page * $rows_per_page; //跳過幾筆
-        $stmt_count = $pdo->prepare("SELECT COUNT(*) AS cc FROM total_hours WHERE Name = :name");
-        $stmt_count->execute(['name' => $name]);
-        $result = $stmt_count->fetch(PDO::FETCH_ASSOC);
-        $total_pages = ceil($result['cc'] / $rows_per_page); //總頁數
-        // $input = json_decode(file_get_contents('php://input'), true);
-        // $name = $input['name']; // 從 fetch 傳入的 name
-        $stmt = $pdo->prepare("SELECT group_name, Name, `In/Out`, Time, Date, IPAddress
-                FROM total_hours WHERE Name = :name order by Date desc limit :skip, :rowsperpage");
-        $stmt->bindParam(':skip', $skip, PDO::PARAM_INT);
-        $stmt->bindParam(':rowsperpage', $rows_per_page, PDO::PARAM_INT);
-        $stmt->bindValue(':name', $name);
-        $stmt->execute();
-        $data['prevpage'] = ($page - 1 > 0) ? $page - 1 : 0;
-        $data['nextpage'] = $page + 1;
-        $data["results"] = [];
-        $rowCount = $stmt->rowCount();
-        for ($i = 0; $i < $rowCount; $i++) {
-            $row = $stmt->fetch();
-            $data["results"][$i] = $row;
-        }
+        // if (empty($results)) {
+        //     echo "❌ 查無資料";
+        //     var_dump($name);
+        //     var_dump($date);
+        // } else {
+        //     echo "✅ 找到資料";
+        //     var_dump($results);
+        // }
+
+        $data['results'] = $results;  // 你剛剛的查詢結果
+        $data['student'] = $name;
+        $data['date'] = $date;
+
         $tmplFile = "/dashboard/inoutlist.twig";
         break;
 

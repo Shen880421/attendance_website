@@ -1,25 +1,35 @@
 <?php
 header('Content-Type: application/json');
-require_once '../inc/db.inc.php'; // 請根據實際路徑修改
+require_once '../inc/db.inc.php';
 
-// 安全查詢資料庫
 $input = json_decode(file_get_contents('php://input'), true);
-$name = $input['name']; // 從 fetch 傳入的 name
-$sql = "SELECT 
-            group_name,
-            Name,
-            `In/Out`,
-            Time,
-            Date,
-            IPAddress
-        FROM total_hours
-        WHERE Name = :name
-        ORDER BY
-            Date";
+$name = $input['name'] ?? '';
+$date = $input['date'] ?? '';
 
-$stmt = $pdo->prepare($sql);
-$stmt->execute(['name' => 'Shen']);
+if (!$name) {
+    echo json_encode([]);
+    exit;
+}
+
+// 如果有指定日期就查 >=，否則查全部
+if ($date) {
+    $sql = "SELECT group_name, Name, `In/Out`, Time, Date, IPAddress
+            FROM total_hours
+            WHERE Name = :name AND Date >= :date
+            ORDER BY Date, Time";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([
+        ':name' => $name,
+        ':date' => $date
+    ]);
+} else {
+    $sql = "SELECT group_name, Name, `In/Out`, Time, Date, IPAddress
+            FROM total_hours
+            WHERE Name = :name
+            ORDER BY Date, Time";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([':name' => $name]);
+}
 
 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
 echo json_encode($data, JSON_UNESCAPED_UNICODE);

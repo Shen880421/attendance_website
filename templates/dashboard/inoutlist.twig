@@ -1,4 +1,7 @@
 {% extends "dashboard.inc.twig" %}
+{% block nav %}
+    {% include "nav_admin.twig" %}
+    {% endblock %}
 {% block menu %}
 	<div class="list-group">
 		<a href="admin_dashboard.php" class="list-group-item">首頁</a>
@@ -12,12 +15,6 @@
             <div class="card-title mt-3">
                 <h3>學員打卡紀錄</h3>
             </div>
-            <div class="row">
-			<div class="col-sm-4 col-md-5 col-lg-4">
-				<input name="searchbydate" placeholder="yyyy-mm-dd"></input>
-				<button for="searchbydate" type="submit" class="btn btn-outline-info" id="searchBtn">搜尋</button>
-			</div>
-		    </div>
 			<div class="card-body">
 				<table class="table table-hover">
                     <thead>
@@ -49,31 +46,76 @@
 {% block scripts %}
 <script>
 const studentSelect = document.getElementById('studentSelect');
+const searchBtn = document.getElementById('searchBtn');
+const dateInput = document.getElementById('inoutDate');
 
-    // ✅ 初始化選單
-    fetch('student.php')
-        .then(res => res.json())
-        .then(studentList => {
-            studentSelect.innerHTML = '<option selected disabled>選取學生</option>';
-            studentList.forEach(student => {
-                const option = document.createElement('option');
-                option.value = student.name;
-                option.textContent = student.name;
-                studentSelect.appendChild(option);
-            });
+// 初始化學生選單
+fetch('student.php')
+    .then(res => res.json())
+    .then(studentList => {
+        studentSelect.innerHTML = '<option selected disabled>選取學生</option>';
+        studentList.forEach(student => {
+            const option = document.createElement('option');
+            option.value = student.name;
+            option.textContent = student.name;
+            studentSelect.appendChild(option);
         });
+    });
 
-    // ✅ 點選搜尋按鈕
-    document.getElementById('searchBtn').addEventListener('click', function () {
-        const studentname = studentSelect.value;
-        if (!studentname) {
-            alert('請選取學生');
-            return;
-        }
+// 整合搜尋按鈕邏輯
+searchBtn.addEventListener('click', function () {
+    const studentname = studentSelect.value.trim();
+    const inoutDate = dateInput.value.trim();
+
+    if (!studentname) {
+        alert('請選取學生');
+        return;
+    }
+
+    if (!inoutDate) {
+        // ✅ 沒有輸入日期，導頁查詢所有資料
         const currentURL = new URL(window.location.href);
         currentURL.searchParams.set('name', studentname);
-        currentURL.searchParams.set('mode', 'inoutlist'); // 確保 mode 也帶著
+        currentURL.searchParams.set('mode', 'inoutlist');
         window.location.href = currentURL.toString();
+        return;
+    }
+
+    // ✅ 有輸入日期，用 fetch 查詢資料後渲染
+    fetch('inoutrecord.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            name: studentname,
+            date: inoutDate
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        const tableBody = document.querySelector('.table tbody');
+        tableBody.innerHTML = '';
+
+        if (data.length === 0) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = '<td colspan="5">查無資料</td>';
+            tableBody.appendChild(tr);
+            return;
+        }
+
+        data.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${row.Name}</td>
+                <td>${row["In/Out"]}</td>
+                <td>${row.Time}</td>
+                <td>${row.Date}</td>
+                <td>${row.IPAddress}</td>
+            `;
+            tableBody.appendChild(tr);
+        });
     });
+});
 </script>
 {% endblock %}
