@@ -1,0 +1,86 @@
+{% extends "dashboard.inc.twig" %}
+
+{% block content %}
+	<h4>刪除使用者確認</h4>
+	<div class="row">
+		<div class="col-12 col-sm-12 col-md-8 offset-md-2">
+			<div class="card shadow-sm border-danger">
+				<div class="card-header bg-danger text-white">
+					<h5 class="mb-0">⚠️ 危險操作</h5>
+				</div>
+				<div class="card-body">
+					{% if message %}
+						<div class="alert {{alert_type}} alert-dismissible fade show" role="alert">
+							{{message}}
+							<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+						</div>
+					{% endif %}
+
+					{% if user_to_delete %}
+						<div class="alert alert-warning" role="alert">
+							<strong>您即將刪除以下使用者：</strong>
+						</div>
+
+						<div class="row mb-3">
+							<div class="col-sm-3">
+								<strong>使用者編號：</strong>
+							</div>
+							<div class="col-sm-9">{{ user_to_delete.no }}</div>
+						</div>
+						<div class="row mb-3">
+							<div class="col-sm-3">
+								<strong>帳號：</strong>
+							</div>
+							<div class="col-sm-9">{{ user_to_delete.acc }}</div>
+						</div>
+						<div class="row mb-3">
+							<div class="col-sm-3">
+								<strong>身分別：</strong>
+							</div>
+							<div class="col-sm-9">
+								{% if user_to_delete.role == 'admin' %}
+									<span class="badge bg-danger">系統管理員</span>
+								{% elseif user_to_delete.role == 'adv-user' %}
+									<span class="badge bg-warning">企業管理者</span>
+								{% else %}
+									<span class="badge bg-secondary">一般學員</span>
+								{% endif %}
+							</div>
+						</div>
+
+						<hr>
+
+						<div class="alert alert-danger" role="alert">
+							<strong>注意：</strong>此操作無法復原！刪除後該使用者的所有資料將永久消失。
+						</div>
+
+						<form method="post" action="admin_dashboard.php?mode=deleteuser&uid={{ user_to_delete.no }}">
+							<div class="d-flex justify-content-end gap-2">
+								<a href="admin_dashboard.php?mode=userlist" class="btn btn-secondary">
+									<i class="fas fa-times"></i>
+									取消
+								</a>
+								<button type="submit" name="confirm_delete" value="1" class="btn btn-danger" onclick="return confirm('您確定要刪除這個使用者嗎？此操作無法復原！')">
+									<i class="fas fa-trash"></i>
+									確認刪除
+								</button>
+							</div>
+						</form>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}
+
+{% block script %}
+	<script>
+		// 額外的確認提示
+document.querySelector('button[name="confirm_delete"]').addEventListener('click', function (e) {
+if (!confirm('最後確認：您真的要刪除使用者「 {{ user_to_delete.acc }}」嗎？\n\n此操作無法復原！')) {
+e.preventDefault();
+return false;
+}
+});
+	</script>
+{% endblock %}
