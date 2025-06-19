@@ -178,77 +178,102 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
+    const ctx_ct = document.getElementById('myclasstimeChart').getContext('2d');
+    const ctx_at = document.getElementById('myattentimeChart').getContext('2d');
+    let mylinechart1 = null;
+    let mylinechart2 = null;
+
+    async function linechart(studentname) {
+        if (!studentname) {
+            console.warn('請傳入學生名稱');
+            return;
+        }
+
+        try {
+            const response = await fetch('hoursline.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ name: studentname })
+            });
+
+            if (!response.ok) throw new Error('HTTP error ' + response.status);
+
+            const res = await response.json();
+
+            if (!Array.isArray(res) || res.length === 0) {
+                console.warn('資料格式錯誤或無資料');
+                return;
+            }
+
+            const classdate = res.map(item => item.class_date);
+            const classhours = res.map(item => Number(item.class_hours));
+            const attenhours = res.map(item => Number(item.raw_hours));
+
+            if (mylinechart1) mylinechart1.destroy();
+            if (mylinechart2) mylinechart2.destroy();
+
+            mylinechart1 = new Chart(ctx_ct, {
+                type: 'line',
+                data: {
+                    labels: classdate,
+                    datasets: [{
+                        label: '每日上課時間',
+                        data: classhours,
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                        borderColor: 'rgba(75, 192, 192, 0.6)',
+                        fill: false,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            mylinechart2 = new Chart(ctx_at, {
+                type: 'line',
+                data: {
+                    labels: classdate,
+                    datasets: [{
+                        label: '每日在校時間',
+                        data: attenhours,
+                        backgroundColor: 'rgba(255, 159, 64, 0.6)',
+                        borderColor: 'rgba(255, 159, 64, 0.6)',
+                        fill: false,
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+        } catch (error) {
+            console.error('折線圖資料錯誤:', error);
+        }
+    }
+
+    // 假設你有學生選單，載入時自動呼叫
+    document.addEventListener('DOMContentLoaded', () => {
+       // 不預設呼叫 linechart，等用戶選學生再呼叫
+    const searchBtn = document.getElementById('searchBtn');
+    const studentSelect = document.getElementById('studentSelect');
+
+    searchBtn.addEventListener('click', () => {
+        const selectedStudent = studentSelect.value;
+        if (!selectedStudent) {
+            alert('請先選擇學生');
+            return;
+        }
+        linechart(selectedStudent);
+    });
+    });
 </script>
 
 
-    <script>// 每日上課時間折線圖
-        const ctx_ct = document.getElementById('myclasstimeChart');
-        const ctx_at = document.getElementById('myattentimeChart');
-        let mylinechart;
-        async function linechart() {
-            try {
-                const response = await fetch('hoursline.json');
-                if (!response.ok) {
-                    throw new Error(response.status);
-                }
-                const res = await response.json();
-                console.log(typeof (res));
-                console.log(res);
-                const classdate = res.map(item => item.class_date);
-                const classhours = res.map(item => item.class_hours);
-                const attenhours = res.map(item => item.raw_hours);
-
-                mylinechart = new Chart(ctx_ct, {
-                    type: 'line',
-                    data: {
-                        labels: classdate,
-                        datasets: [{
-                            label: '每日上課時間',
-                            data: classhours,
-                            backgroundColor: [
-                                'rgba(75, 192, 192, 0.6)', // 綠色
-                            ],
-                            borderColor: 'rgba(75, 192, 192, 0.6)'
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true // Y 軸從 0 開始
-                            }
-                        }
-                    }
-                });
-            // 每日在校時間折線圖
-                new Chart(ctx_at, {
-                    type: 'line',
-                    data: {
-                        labels: classdate,
-                        datasets: [{
-                            label: '每日在校時間折線圖',
-                            data: attenhours,
-                            backgroundColor: [
-                                'rgba(75, 192, 192, 0.6)', // 綠色
-                            ],
-                            borderColor: 'rgba(75, 192, 192, 0.6)'
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true // Y 軸從 0 開始
-                            }
-                        }
-                    }
-                });
-            } catch (error) {
-                console.error(error);
-            }
-
-        }
-
-        
-
-        window.onload = linechart;
-    </script>
 {% endblock %}
