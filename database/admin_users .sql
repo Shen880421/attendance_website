@@ -31,17 +31,18 @@ CREATE TABLE `admin_users` (
   `no` int NOT NULL,
   `acc` varchar(255) NOT NULL,
   `pwd` varchar(255) NOT NULL,
-  `role` enum('admin','adv-user','normal-user') NOT NULL
+  `role` enum('admin','adv-user','normal-user') NOT NULL,
+  `group_name` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- 傾印資料表的資料 `admin_users`
 --
 
-INSERT INTO `admin_users` (`no`, `acc`, `pwd`, `role`) VALUES
-(1, 'admin@test.com', '5f4dcc3b5aa765d61d8327deb882cf99', 'admin'),
-(2, 'adv-user@test.com',  '5f4dcc3b5aa765d61d8327deb882cf99', 'adv-user'),
-(3, 'user@test.com', '5f4dcc3b5aa765d61d8327deb882cf99', 'normal-user');
+INSERT INTO `admin_users` (`no`, `acc`, `pwd`, `role`, `group_name`) VALUES
+(1, 'admin@test.com', '16d7a4fca7442dda3ad93c9a726597e4', 'admin', 'FS101'),
+(2, 'adv-user@test.com',  '5f4dcc3b5aa765d61d8327deb882cf99', 'adv-user', 'FS101'),
+(3, 'user@test.com', '5f4dcc3b5aa765d61d8327deb882cf99', 'normal-user', 'FS101');
 
 --
 -- 已傾印資料表的索引

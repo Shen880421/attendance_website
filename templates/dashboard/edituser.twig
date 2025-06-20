@@ -13,6 +13,10 @@
         <input type="email" class="form-control" id="account" name="account" value="{{ edit_user.acc }}" readonly>
     </div>
     <div class="mb-3">
+        <label for="group_name" class="form-label">班級代碼</label>
+        <input type="text" class="form-control" id="group_name" name="group_name" value="{{ edit_user.group_name }}">
+    </div>
+    <div class="mb-3">
         <label for="password" class="form-label">新密碼</label>
         <input type="password" class="form-control" id="password" name="password" autocomplete="new-password">
     </div>

@@ -177,7 +177,7 @@ switch ($mode) {
         // 檢查是否為 POST 請求
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // 驗證必填欄位
-            if (empty($_POST['account']) || empty($_POST['password']) || empty($_POST['confirm_password'])) {
+            if (empty($_POST['account']) || empty($_POST['password']) || empty($_POST['confirm_password']) || empty($_POST['group_name'])) {
                 $data['message'] = '請填寫所有必要欄位';
                 $data['alert_type'] = 'alert-danger';
             } elseif ($_POST['password'] !== $_POST['confirm_password']) {
@@ -198,12 +198,13 @@ switch ($mode) {
 
                         // 插入新使用者
                         $stmt = $pdo->prepare(
-                            "INSERT INTO admin_users (acc, pwd, role) VALUES (:acc, :pwd, :role)"
+                            "INSERT INTO admin_users (acc, pwd, role, group_name) VALUES (:acc, :pwd, :role, :group_name)"
                         );
                         $stmt->execute([
                             ':acc' => $_POST['account'],
                             ':pwd' => $hashedPassword,
-                            ':role' => $_POST['role']
+                            ':role' => $_POST['role'],
+                            ':group_name' => $_POST['group_name']
                         ]);
 
                         $data['message'] = '使用者新增成功！';
@@ -332,13 +333,14 @@ switch ($mode) {
     if (isset($_GET['uid']) && is_numeric($_GET['uid'])) {
         $uid = (int)$_GET['uid'];
         $account = $_POST['account'] ?? '';
+        $group_name = $_POST['group_name'] ?? '';
         $role = $_POST['role'] ?? '';
         $password = $_POST['password'] ?? '';
         $password_confirm = $_POST['password_confirm'] ?? '';
 
         // 基本欄位驗證
-        if (empty($account) || empty($role)) {
-            $data['message'] = '帳號與身分別不可為空';
+        if (empty($account) || empty($role) || empty($group_name)) {
+            $data['message'] = '帳號、班級代碼與身分別不可為空';
             $data['alert_type'] = 'alert-danger';
             // 重新載入該使用者資料
             $stmt = $pdo->prepare("SELECT * FROM admin_users WHERE no = :uid");
@@ -349,7 +351,7 @@ switch ($mode) {
         }
 
         // 密碼驗證
-        if (!empty($password) || !empty($password_confirm)) {
+        if (!empty($password) || !empty($password_confirm) || !empty('group_name')) {
             if ($password !== $password_confirm) {
                 $data['message'] = '兩次輸入的密碼不一致';
                 $data['alert_type'] = 'alert-danger';
@@ -361,19 +363,21 @@ switch ($mode) {
                 break;
             }
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-            $sql = "UPDATE admin_users SET acc = :acc, role = :role, pwd = :pwd WHERE no = :uid";
+            $sql = "UPDATE admin_users SET acc = :acc, role = :role, pwd = :pwd, group_name = :group_name WHERE no = :uid";
             $params = [
                 ':acc' => $account,
                 ':role' => $role,
                 ':pwd' => $hashed_password,
-                ':uid' => $uid
+                ':uid' => $uid,
+                ':group_name' => $group_name
             ];
         } else {
-            $sql = "UPDATE admin_users SET acc = :acc, role = :role WHERE no = :uid";
+            $sql = "UPDATE admin_users SET acc = :acc, role = :role, group_name = :group_name WHERE no = :uid";
             $params = [
                 ':acc' => $account,
                 ':role' => $role,
-                ':uid' => $uid
+                ':uid' => $uid,
+                ':group_name' => $group_name
             ];
         }
 
