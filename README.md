@@ -160,7 +160,7 @@ attendance_website/
 
 | 角色 | 帳號 | 密碼 | 說明 |
 |------|------|------|------|
-| 系統管理員 | <admin@test.com> | password | 完整後台權限 |
+| 系統管理員 | <admin@demo.com> | test1234 | 完整後台權限 |
 | 企業管理者 | <adv-user@test.com> | password | 查看所有學員資料 |
 | 一般學員 | <user@test.com> | password | 僅查看個人資料 |
 
@@ -246,6 +246,8 @@ php -S localhost:8000
 # Twig 模板測試
 # 訪問 http://localhost:8000/twig_test.php
 ```
+
+## 網頁模板
 
 ## 🐛 已知問題與改進計畫
 

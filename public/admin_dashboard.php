@@ -71,9 +71,39 @@ switch ($mode) {
             GROUP BY Name;
         ");
         $stmt->execute([
-            ':name' => $name,
-
+            ':name' => $name
         ]);
+
+
+        // 查詢總筆數
+
+        if (isset($_GET['page']) && $_GET['page'] != '') {
+            $page = $_GET['page'];
+        } else {
+            $page = 0;
+        }
+        $rows_per_page = 10; //每頁幾筆資料
+        $skip = $page * $rows_per_page; //跳過幾筆
+        $stmt_count = $pdo->prepare("SELECT COUNT(*) AS cc FROM total_hours WHERE Name = :name");
+        $stmt_count->execute(['name' => $name]);
+        $result = $stmt_count->fetch(PDO::FETCH_ASSOC);
+        $total_pages = ceil($result['cc'] / $rows_per_page); //總頁數
+        // $input = json_decode(file_get_contents('php://input'), true);
+        // $name = $input['name']; // 從 fetch 傳入的 name
+        $stmt = $pdo->prepare("SELECT group_name, Name, `In/Out`, Time, Date, IPAddress
+                FROM total_hours WHERE Name = :name order by Date desc limit :skip, :rowsperpage");
+        $stmt->bindParam(':skip', $skip, PDO::PARAM_INT);
+        $stmt->bindParam(':rowsperpage', $rows_per_page, PDO::PARAM_INT);
+        $stmt->bindValue(':name', $name);
+        $stmt->execute();
+        $data['prevpage'] = ($page - 1 > 0) ? $page - 1 : 0;
+        $data['nextpage'] = $page + 1;
+        $data["results"] = [];
+        $rowCount = $stmt->rowCount();
+        for ($i = 0; $i < $rowCount; $i++) {
+            $row = $stmt->fetch();
+            $data["results"][$i] = $row;
+        }
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $data['results'] = $results;  // 你剛剛的查詢結果
         $data['student'] = $name;
@@ -81,6 +111,7 @@ switch ($mode) {
 
         $tmplFile = "/dashboard/insertdata.twig";
         break;
+
     case 'savedata':
         // 確認是否有收到 POST 資料
         if (!isset($_POST['name'], $_POST['inout'], $_POST['time'], $_POST['date'], $_POST['IP'])) {
@@ -118,7 +149,6 @@ switch ($mode) {
         $data["name"] = $name;
         $data["date"] = $date;
         $tmplFile = "/dashboard/message.twig";
-        break;
         break;
 
     case 'deletedata':
@@ -268,7 +298,104 @@ switch ($mode) {
     case 'createuser':
         $tmplFile = "dashboard/createuser.twig";
         break;
-    
+    case 'edituser':
+        if (isset($_GET['uid']) && is_numeric($_GET['uid'])) {
+            $uid = (int)$_GET['uid'];
+            try {
+                $stmt = $pdo->prepare("SELECT * FROM admin_users WHERE no = :uid");
+                $stmt->execute([':uid' => $uid]);
+                $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if ($user) {
+                    $data['edit_user'] = $user;
+                    $tmplFile = "dashboard/edituser.twig";
+                } else {
+                    $data['message'] = '找不到該使用者';
+                    $data['alert_type'] = 'alert-danger';
+                    $data = array_merge($data, loaduser($pdo));
+                    $tmplFile = "dashboard/userlist.twig";
+                }
+            } catch (PDOException $e) {
+                $data['message'] = '查詢失敗：' . $e->getMessage();
+                $data['alert_type'] = 'alert-danger';
+                $data = array_merge($data, loaduser($pdo));
+                $tmplFile = "dashboard/userlist.twig";
+            }
+        } else {
+            $data['message'] = '無效的使用者 ID';
+            $data['alert_type'] = 'alert-danger';
+            $data = array_merge($data, loaduser($pdo));
+            $tmplFile = "dashboard/userlist.twig";
+        }
+        break;
+    case 'saveedituser':
+    if (isset($_GET['uid']) && is_numeric($_GET['uid'])) {
+        $uid = (int)$_GET['uid'];
+        $account = $_POST['account'] ?? '';
+        $role = $_POST['role'] ?? '';
+        $password = $_POST['password'] ?? '';
+        $password_confirm = $_POST['password_confirm'] ?? '';
+
+        // 基本欄位驗證
+        if (empty($account) || empty($role)) {
+            $data['message'] = '帳號與身分別不可為空';
+            $data['alert_type'] = 'alert-danger';
+            // 重新載入該使用者資料
+            $stmt = $pdo->prepare("SELECT * FROM admin_users WHERE no = :uid");
+            $stmt->execute([':uid' => $uid]);
+            $data['edit_user'] = $stmt->fetch(PDO::FETCH_ASSOC);
+            $tmplFile = "dashboard/edituser.twig";
+            break;
+        }
+
+        // 密碼驗證
+        if (!empty($password) || !empty($password_confirm)) {
+            if ($password !== $password_confirm) {
+                $data['message'] = '兩次輸入的密碼不一致';
+                $data['alert_type'] = 'alert-danger';
+                // 重新載入該使用者資料
+                $stmt = $pdo->prepare("SELECT * FROM admin_users WHERE no = :uid");
+                $stmt->execute([':uid' => $uid]);
+                $data['edit_user'] = $stmt->fetch(PDO::FETCH_ASSOC);
+                $tmplFile = "dashboard/edituser.twig";
+                break;
+            }
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            $sql = "UPDATE admin_users SET acc = :acc, role = :role, pwd = :pwd WHERE no = :uid";
+            $params = [
+                ':acc' => $account,
+                ':role' => $role,
+                ':pwd' => $hashed_password,
+                ':uid' => $uid
+            ];
+        } else {
+            $sql = "UPDATE admin_users SET acc = :acc, role = :role WHERE no = :uid";
+            $params = [
+                ':acc' => $account,
+                ':role' => $role,
+                ':uid' => $uid
+            ];
+        }
+
+        try {
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($params);
+            $data['message'] = '使用者資料已更新';
+            $data['alert_type'] = 'alert-success';
+            // 重新載入使用者列表
+            $data = array_merge($data, loaduser($pdo));
+            $tmplFile = "dashboard/userlist.twig";
+        } catch (PDOException $e) {
+            $data['message'] = '更新失敗：' . $e->getMessage();
+            $data['alert_type'] = 'alert-danger';
+            // 重新載入該使用者資料
+            $stmt = $pdo->prepare("SELECT * FROM admin_users WHERE no = :uid");
+            $stmt->execute([':uid' => $uid]);
+            $data['edit_user'] = $stmt->fetch(PDO::FETCH_ASSOC);
+            $tmplFile = "dashboard/edituser.twig";
+        }
+    }
+    break;
     default:
         $tmplFile = "dashboard/admin.twig";
         break;
