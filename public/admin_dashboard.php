@@ -71,7 +71,38 @@ switch ($mode) {
             GROUP BY Name;
         ");
         $stmt->execute([
-            ':name' => $name,
+            ':name' => $name
+        ]);
+
+
+        // 查詢總筆數
+
+        if (isset($_GET['page']) && $_GET['page'] != '') {
+            $page = $_GET['page'];
+        } else {
+            $page = 0;
+        }
+        $rows_per_page = 10; //每頁幾筆資料
+        $skip = $page * $rows_per_page; //跳過幾筆
+        $stmt_count = $pdo->prepare("SELECT COUNT(*) AS cc FROM total_hours WHERE Name = :name");
+        $stmt_count->execute(['name' => $name]);
+        $result = $stmt_count->fetch(PDO::FETCH_ASSOC);
+        $total_pages = ceil($result['cc'] / $rows_per_page); //總頁數
+        // $input = json_decode(file_get_contents('php://input'), true);
+        // $name = $input['name']; // 從 fetch 傳入的 name
+        $stmt = $pdo->prepare("SELECT group_name, Name, `In/Out`, Time, Date, IPAddress
+                FROM total_hours WHERE Name = :name order by Date desc limit :skip, :rowsperpage");
+        $stmt->bindParam(':skip', $skip, PDO::PARAM_INT);
+        $stmt->bindParam(':rowsperpage', $rows_per_page, PDO::PARAM_INT);
+        $stmt->bindValue(':name', $name);
+        $stmt->execute();
+        $data['prevpage'] = ($page - 1 > 0) ? $page - 1 : 0;
+        $data['nextpage'] = $page + 1;
+        $data["results"] = [];
+        $rowCount = $stmt->rowCount();
+        for ($i = 0; $i < $rowCount; $i++) {
+            $row = $stmt->fetch();
+            $data["results"][$i] = $row;
 
         ]);
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -81,6 +112,7 @@ switch ($mode) {
 
         $tmplFile = "/dashboard/insertdata.twig";
         break;
+
     case 'savedata':
         // 確認是否有收到 POST 資料
         if (!isset($_POST['name'], $_POST['inout'], $_POST['time'], $_POST['date'], $_POST['IP'])) {
