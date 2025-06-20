@@ -30,9 +30,47 @@
 				<div class="col-md-10">
 					{% block content %}
 						<h3>出缺勤總覽</h3>
-						<div class="row row-cols-1 row-cols-md-3">
+						<div class="row row-cols-1 row-cols-md-3 g-4">
+							<div
+								class="col">
+								<!--課程時數柱狀圖-->
+								<div class="card shadow-sm mt-4">
+									<div class="card-body">
+										<div class="p-1">
+											<h6>課程時數柱狀圖</h6>
+											<canvas id="courseChart"></canvas>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div
+								class="col">
+								<!--每日上課時間折線圖-->
+								<div class="card shadow-sm mt-4">
+									<div class="card-body">
+										<div class="p-1">
+											<h6>每日上課時間折線圖</h6>
+											<canvas id="myclasstimeChart"></canvas>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div
+								class="col">
+								<!--每日在校時間折線圖-->
+								<div class="card shadow-sm mt-4">
+									<div class="card-body">
+										<div class="p-1">
+											<h6>每日在校時間折線圖</h6>
+											<canvas id="myattentimeChart"></canvas>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="row row-cols-1 row-cols-md-2 g-4">
 							<div class="col">
-								<div class="card shadow-sm">
+								<div class="card shadow-sm mt-4">
 									<div class="card-body">
 										<h6>總課程時數</h6>
 										<div id="classhours" class="card-title-number text-primary">---</div>
@@ -42,9 +80,7 @@
 										<div id="days" class="card-title-number text-primary">---</div>
 									</div>
 								</div>
-							</div>
-							<div class="col">
-								<div class="card shadow-sm">
+								<div class="card shadow-sm mt-4">
 									<div class="card-body">
 										<h6>總出席率數</h6>
 										<div id="attendancerate" class="card-title-number text-primary">---</div>
@@ -57,47 +93,25 @@
 									</div>
 								</div>
 							</div>
-						</div>
-						<!--課程時數柱狀圖-->
-						<div class="row row-cols-1 row-cols-md-1">
-							<div class="p-5">
-								<h1>課程時數柱狀圖</h1>
-								<canvas id="courseChart" width="800" height="400"></canvas>
-							</div>
-						</div>
-						<!--出缺席圓餅圖-->
-						<div>
-							<h6>出/缺席</h1>
-							<canvas id="myAttenChart"></canvas>
-						</div>
-						<!--每日上課時間折線圖-->
-						<div class="row row-cols-1 row-cols-md-1">
-							<div class="p-5">
-								<h1>每日上課時間折線圖</h1>
-								<canvas id="myclasstimeChart"></canvas>
-							</div>
-						</div>
-						<!--每日在校時間折線圖-->
-						<div class="row row-cols-1 row-cols-md-1">
-							<div class="p-5">
-								<h1>每日在校時間折線圖</h1>
-								<canvas id="myattentimeChart"></canvas>
+							<div
+								class="col">
+								<!--出缺席圓餅圖-->
+								<div class="card shadow-sm mt-4">
+									<div class="card-body">
+										<h6>出/缺席</h6>
+										<canvas id="myAttenChart" width="400" height="380"></canvas>
+									</div>
+								</div>
 							</div>
 						</div>
 					{% endblock %}
 				</div>
 			</div>
-
 		</main>
-
-		{% include "footer.inc.twig" %}
-
 		<!-- 載入Chart.js -->
-		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-		<!-- 載入 Chart.js Data Labels 插件（如果想顯示標籤） -->
-		<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script><!-- 載入 Chart.js Data Labels 插件（如果想顯示標籤） --><script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 		{% block scripts %}{% endblock %}
+		{% include "footer.inc.twig" %}
 	</body>
-
 </html>
