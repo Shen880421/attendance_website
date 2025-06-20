@@ -119,7 +119,6 @@ switch ($mode) {
         $data["date"] = $date;
         $tmplFile = "/dashboard/message.twig";
         break;
-        break;
 
     case 'deletedata':
         try {
@@ -268,7 +267,7 @@ switch ($mode) {
     case 'createuser':
         $tmplFile = "dashboard/createuser.twig";
         break;
-    
+
     default:
         $tmplFile = "dashboard/admin.twig";
         break;
