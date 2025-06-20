@@ -9,8 +9,18 @@
 	.cart-li:hover > div.nav-cart-div {
 		display: block;
 	}
+
+	/* 固定導航列樣式 */
+	.navbar-fixed-top {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		z-index: 1030;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	}
 </style>
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary navbar-fixed-top shadow">
 	<div
 		class="container-fluid">
 		<!-- 網站品牌 -->
@@ -19,7 +29,7 @@
 			<div class="col-sm-4 col-md-5 col-lg-4">
 				<select id="studentSelect" class="form-select"></select>
 				<input type="date" id="inoutDate" placeholder="選擇起始日期" class="form-control"/>
-				
+
 			</div>
 			<div class="col-sm-3 col-md-1 col-lg-1">
 				<button type="button" class="btn btn-primary" id="searchBtn">查詢</button>
@@ -32,8 +42,7 @@
 
 		<!-- 導航菜單內容 -->
 		<div class="collapse navbar-collapse" id="navbarNav">
-			<ul
-				class="navbar-nav">
+			<ul class="navbar-nav">
 				<li class="nav-item">
 					<a class="nav-link active" aria-current="page" href="#">{{useracc}}</a>
 				</li>
@@ -44,4 +53,3 @@
 		</div>
 	</div>
 </nav>
-

@@ -1,0 +1,147 @@
+/* 出缺勤系統 - 全域樣式 */
+
+/* ===========================================
+   固定導航列和 Footer 樣式
+   =========================================== */
+
+/* 固定導航列 */
+.navbar-fixed-top {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+/* Body 調整 - 為固定元素留空間 */
+body {
+    padding-top: 80px;
+    /* 導航列高度 */
+    padding-bottom: 80px;
+    /* Footer 高度 */
+}
+
+/* 固定 Footer */
+.footer-fixed {
+    position: fixed !important;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1020;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 主要內容區域 */
+.main-content {
+    min-height: calc(100vh - 160px);
+    margin-top: 0;
+    padding-top: 20px;
+}
+
+/* ===========================================
+   響應式設計
+   =========================================== */
+
+/* 平板設備 */
+@media (max-width: 992px) {
+    body {
+        padding-top: 100px;
+    }
+}
+
+/* 手機設備 */
+@media (max-width: 768px) {
+    body {
+        padding-top: 120px;
+        padding-bottom: 100px;
+    }
+
+    .navbar-fixed-top {
+        min-height: 100px;
+    }
+
+    .main-content {
+        padding-top: 10px;
+    }
+}
+
+/* 小螢幕 */
+@media (max-width: 576px) {
+    body {
+        padding-top: 140px;
+    }
+}
+
+/* ===========================================
+   導航列增強樣式
+   =========================================== */
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.4rem;
+    transition: all 0.3s ease;
+}
+
+.navbar-brand:hover {
+    transform: scale(1.05);
+}
+
+/* 搜尋區域 */
+.search-section {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 10px;
+    margin: 0 15px;
+}
+
+/* ===========================================
+   Footer 增強樣式
+   =========================================== */
+
+.footer-fixed {
+    background: linear-gradient(135deg, #343a40 0%, #495057 100%);
+    backdrop-filter: blur(10px);
+}
+
+.footer-fixed .container {
+    padding: 10px 0;
+}
+
+/* ===========================================
+   工具類別
+   =========================================== */
+
+/* 確保內容不被遮蔽 */
+.content-safe {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+/* 卡片陰影 */
+.card-shadow {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease;
+}
+
+.card-shadow:hover {
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* 動畫效果 */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
