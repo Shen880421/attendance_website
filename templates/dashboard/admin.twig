@@ -92,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const inschoolavrage = document.getElementById("inschoolavrage");
     const studentSelect = document.getElementById('studentSelect');
 
-    const totalclasshours = document.getElementById("totalclasshours");
+
     const attendance = document.getElementById("attendance");
     const unattendance = document.getElementById("unattendance");
     const late = document.getElementById("late");
@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
            
            
-            totalclasshours.innerHTML = `${parseFloat(data.class_hours).toFixed(2)} 小時`;
+            
             attendance.innerHTML = `${parseFloat(data.attended_hours).toFixed(2)} 小時`;
             unattendance.innerHTML = `${parseFloat(data.absent_hours).toFixed(2)} 小時`;
             late.innerHTML = `${parseFloat(data.late_hours).toFixed(2)} 小時`;
