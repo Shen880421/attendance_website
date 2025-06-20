@@ -14,6 +14,7 @@ if (!$name) {
 }
 
 $sql = "SELECT 
+            COUNT(*) AS total_rows,
             COUNT(DISTINCT class_date) AS days,
             SUM(class_hours) AS class_hours,
             SUM(attended_hours) AS attended_hours,

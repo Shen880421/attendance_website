@@ -81,15 +81,22 @@
         });
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
-        const classhours = document.getElementById("classhours");
-        const classEl = document.getElementById("class");
-        const days = document.getElementById("days");
-        const attendancerate = document.getElementById("attendancerate");
-        const laterate = document.getElementById("laterate");
-        const leave_earlyrate = document.getElementById("leave_earlyrate");
-        const inschoolavrage = document.getElementById("inschoolavrage");
-        const studentSelect = document.getElementById('studentSelect');
+
+document.addEventListener('DOMContentLoaded', function () {
+    const classhours = document.getElementById("classhours");
+    const total_rows = document.getElementById("total_rows");
+    const days = document.getElementById("days");
+    const attendancerate = document.getElementById("attendancerate");
+    const laterate = document.getElementById("laterate");
+    const leave_earlyrate = document.getElementById("leave_earlyrate");
+    const inschoolavrage = document.getElementById("inschoolavrage");
+    const studentSelect = document.getElementById('studentSelect');
+
+    const totalclasshours = document.getElementById("totalclasshours");
+    const attendance = document.getElementById("attendance");
+    const unattendance = document.getElementById("unattendance");
+    const late = document.getElementById("late");
+    const leave_early = document.getElementById("leave_early");
 
         // 初始化學生選單
         fetch('student.php').then(res => res.json()).then(studentList => {
@@ -110,27 +117,30 @@
                 return;
             }
 
-            // 取得統計數據
-            fetch('sumdataforchart.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(
-                    { name: studentname }
-                )
-            }).then(res => res.json()).then(data => {
-                if (!data || Object.keys(data).length === 0 || data.error) {
-                    alert('查無該學生的統計資料');
-                    return;
-                }
+        // 取得統計數據
+        fetch('sumdataforchart.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ name: studentname })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (!data || Object.keys(data).length === 0 || data.error) {
+                alert('查無該學生的統計資料');
+                return;
+            }
+           
+           
+            totalclasshours.innerHTML = `${parseFloat(data.class_hours).toFixed(2)} 小時`;
+            attendance.innerHTML = `${parseFloat(data.attended_hours).toFixed(2)} 小時`;
+            unattendance.innerHTML = `${parseFloat(data.absent_hours).toFixed(2)} 小時`;
+            late.innerHTML = `${parseFloat(data.late_hours).toFixed(2)} 小時`;
+            leave_early.innerHTML = `${parseFloat(data.leave_early_hours).toFixed(2)} 小時`;
 
-                classhours.innerHTML = `${parseFloat(data.class_hours).toFixed(2)
-                    } 小時`;
-                classEl.innerHTML = `${parseFloat(data.attended_hours).toFixed(2)
-                    } 小時`;
-                days.innerHTML = `${data.days
-                    } 天`;
+
+            classhours.innerHTML = `${parseFloat(data.class_hours).toFixed(2)} 小時`;
+            total_rows.innerHTML = `${data.total_rows} 堂課`;
+            days.innerHTML = `${data.days} 天`;
 
                 const attendanceratenum = parseInt((parseFloat(data.attended_hours) / parseFloat(data.class_hours)) * 100);
                 attendancerate.innerHTML = `${attendanceratenum}%`;
