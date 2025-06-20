@@ -103,8 +103,7 @@ switch ($mode) {
         for ($i = 0; $i < $rowCount; $i++) {
             $row = $stmt->fetch();
             $data["results"][$i] = $row;
-
-        ]);
+        }
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $data['results'] = $results;  // 你剛剛的查詢結果
         $data['student'] = $name;
