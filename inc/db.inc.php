@@ -1,10 +1,10 @@
 <?php
-$host     = '172.17.0.3';
-$port     = 3306;
-$dbName   = 'attendance_web_project';
+$host = '172.17.0.2';
+$port = 3306;
+$dbName = 'attendance_web_project';
 $username = 'root';
 $password = 'ashen2250';
-$charset  = 'utf8mb4';           // 字元集，建議使用 utf8mb4 支援更多字元，如 Emoji
+$charset = 'utf8mb4';           // 字元集，建議使用 utf8mb4 支援更多字元，如 Emoji
 // DSN (Data Source Name)
 $dsn = "mysql:host=$host;port=$port;dbname=$dbName;charset=$charset";
 
