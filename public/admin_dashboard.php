@@ -330,30 +330,17 @@ switch ($mode) {
         }
         break;
     case 'saveedituser':
-    if (isset($_GET['uid']) && is_numeric($_GET['uid'])) {
-        $uid = (int)$_GET['uid'];
-        $account = $_POST['account'] ?? '';
-        $group_name = $_POST['group_name'] ?? '';
-        $role = $_POST['role'] ?? '';
-        $password = $_POST['password'] ?? '';
-        $password_confirm = $_POST['password_confirm'] ?? '';
+        if (isset($_GET['uid']) && is_numeric($_GET['uid'])) {
+            $uid = (int)$_GET['uid'];
+            $account = $_POST['account'] ?? '';
+            $group_name = $_POST['group_name'] ?? '';
+            $role = $_POST['role'] ?? '';
+            $password = $_POST['password'] ?? '';
+            $password_confirm = $_POST['password_confirm'] ?? '';
 
-        // 基本欄位驗證
-        if (empty($account) || empty($role) || empty($group_name)) {
-            $data['message'] = '帳號、班級代碼與身分別不可為空';
-            $data['alert_type'] = 'alert-danger';
-            // 重新載入該使用者資料
-            $stmt = $pdo->prepare("SELECT * FROM admin_users WHERE no = :uid");
-            $stmt->execute([':uid' => $uid]);
-            $data['edit_user'] = $stmt->fetch(PDO::FETCH_ASSOC);
-            $tmplFile = "dashboard/edituser.twig";
-            break;
-        }
-
-        // 密碼驗證
-        if (!empty($password) || !empty($password_confirm) || !empty('group_name')) {
-            if ($password !== $password_confirm) {
-                $data['message'] = '兩次輸入的密碼不一致';
+            // 基本欄位驗證
+            if (empty($account) || empty($role) || empty($group_name)) {
+                $data['message'] = '帳號、班級代碼與身分別不可為空';
                 $data['alert_type'] = 'alert-danger';
                 // 重新載入該使用者資料
                 $stmt = $pdo->prepare("SELECT * FROM admin_users WHERE no = :uid");
@@ -362,44 +349,57 @@ switch ($mode) {
                 $tmplFile = "dashboard/edituser.twig";
                 break;
             }
-            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-            $sql = "UPDATE admin_users SET acc = :acc, role = :role, pwd = :pwd, group_name = :group_name WHERE no = :uid";
-            $params = [
-                ':acc' => $account,
-                ':role' => $role,
-                ':pwd' => $hashed_password,
-                ':uid' => $uid,
-                ':group_name' => $group_name
-            ];
-        } else {
-            $sql = "UPDATE admin_users SET acc = :acc, role = :role, group_name = :group_name WHERE no = :uid";
-            $params = [
-                ':acc' => $account,
-                ':role' => $role,
-                ':uid' => $uid,
-                ':group_name' => $group_name
-            ];
-        }
 
-        try {
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute($params);
-            $data['message'] = '使用者資料已更新';
-            $data['alert_type'] = 'alert-success';
-            // 重新載入使用者列表
-            $data = array_merge($data, loaduser($pdo));
-            $tmplFile = "dashboard/userlist.twig";
-        } catch (PDOException $e) {
-            $data['message'] = '更新失敗：' . $e->getMessage();
-            $data['alert_type'] = 'alert-danger';
-            // 重新載入該使用者資料
-            $stmt = $pdo->prepare("SELECT * FROM admin_users WHERE no = :uid");
-            $stmt->execute([':uid' => $uid]);
-            $data['edit_user'] = $stmt->fetch(PDO::FETCH_ASSOC);
-            $tmplFile = "dashboard/edituser.twig";
+            // 密碼驗證
+            if (!empty($password) || !empty($password_confirm) || !empty('group_name')) {
+                if ($password !== $password_confirm) {
+                    $data['message'] = '兩次輸入的密碼不一致';
+                    $data['alert_type'] = 'alert-danger';
+                    // 重新載入該使用者資料
+                    $stmt = $pdo->prepare("SELECT * FROM admin_users WHERE no = :uid");
+                    $stmt->execute([':uid' => $uid]);
+                    $data['edit_user'] = $stmt->fetch(PDO::FETCH_ASSOC);
+                    $tmplFile = "dashboard/edituser.twig";
+                    break;
+                }
+                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+                $sql = "UPDATE admin_users SET acc = :acc, role = :role, pwd = :pwd, group_name = :group_name WHERE no = :uid";
+                $params = [
+                    ':acc' => $account,
+                    ':role' => $role,
+                    ':pwd' => $hashed_password,
+                    ':uid' => $uid,
+                    ':group_name' => $group_name
+                ];
+            } else {
+                $sql = "UPDATE admin_users SET acc = :acc, role = :role, group_name = :group_name WHERE no = :uid";
+                $params = [
+                    ':acc' => $account,
+                    ':role' => $role,
+                    ':uid' => $uid,
+                    ':group_name' => $group_name
+                ];
+            }
+
+            try {
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute($params);
+                $data['message'] = '使用者資料已更新';
+                $data['alert_type'] = 'alert-success';
+                // 重新載入使用者列表
+                $data = array_merge($data, loaduser($pdo));
+                $tmplFile = "dashboard/userlist.twig";
+            } catch (PDOException $e) {
+                $data['message'] = '更新失敗：' . $e->getMessage();
+                $data['alert_type'] = 'alert-danger';
+                // 重新載入該使用者資料
+                $stmt = $pdo->prepare("SELECT * FROM admin_users WHERE no = :uid");
+                $stmt->execute([':uid' => $uid]);
+                $data['edit_user'] = $stmt->fetch(PDO::FETCH_ASSOC);
+                $tmplFile = "dashboard/edituser.twig";
+            }
         }
-    }
-    break;
+        break;
     default:
         $tmplFile = "dashboard/admin.twig";
         break;

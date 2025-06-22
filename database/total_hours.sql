@@ -34,7 +34,7 @@ CREATE TABLE `total_hours` (
   `Time` varchar(255) NOT NULL,
   `Date` date NOT NULL,
   `IPAddress` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- 傾印資料表的資料 `total_hours`

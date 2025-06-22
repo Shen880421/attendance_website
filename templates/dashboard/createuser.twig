@@ -28,11 +28,8 @@
 
 					<form method="post" action="admin_dashboard.php?mode=adduser" class="needs-validation" novalidate>
 						<div class="mb-3">
-							<label for="account" class="form-label">使用者帳號 (Email格式)</label>
-							<input type="email" class="form-control" id="account" name="account" placeholder="請輸入email格式的帳號" required>
-							<div class="invalid-feedback">
-								請輸入有效的Email格式帳號
-							</div>
+							<label for="account" class="form-label">使用者帳號</label>
+							<input type="text" class="form-control" id="account" name="account" placeholder="請輸入帳號" required>
 						</div>
 
 						<div class="mb-3">
@@ -63,7 +60,7 @@
 							<label for="role" class="form-label">身分別設定</label>
 							<select class="form-control" id="role" name="role" required>
 								<option value="">請選擇身分別</option>
-								<option value="nor-user">一般學員</option>
+								<option value="normal-user">一般學員</option>
 								<option value="adv-user">企業管理者</option>
 								<option value="admin">系統管理員</option>
 							</select>

@@ -33,16 +33,38 @@ CREATE TABLE `admin_users` (
   `pwd` varchar(255) NOT NULL,
   `role` enum('admin','adv-user','normal-user') NOT NULL,
   `group_name` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- 傾印資料表的資料 `admin_users`
 --
 
 INSERT INTO `admin_users` (`no`, `acc`, `pwd`, `role`, `group_name`) VALUES
-(1, 'admin@test.com', '16d7a4fca7442dda3ad93c9a726597e4', 'admin', 'FS101'),
-(2, 'adv-user@test.com',  '5f4dcc3b5aa765d61d8327deb882cf99', 'adv-user', 'FS101'),
-(3, 'user@test.com', '5f4dcc3b5aa765d61d8327deb882cf99', 'normal-user', 'FS101');
+(1, 'admin@demo.com', '$2y$10$6M3tyWxxAkC70CczmhOyx.yMuXtytbHx28lVWz.qwKxSfW.1h2TZi', 'admin', 'FS101'),
+(2, 'adv-user@test.com',  '$2y$10$3vtPTRrnZViMnG5exuNX5.1LfWVfzNME7wKsYYGzjwlHEc5/gHJ6y', 'adv-user', 'FS101'),
+(3, 'user@test.com', '$2y$10$3vtPTRrnZViMnG5exuNX5.1LfWVfzNME7wKsYYGzjwlHEc5/gHJ6y', 'normal-user', 'FS101'),
+(4, 'Aaron',  '$2y$10$D2AN7I/Tu4bvMsdHf.w.lu55dWQPVuJctmQ/WGYfIYSmrIbRI7VYe', 'normal-user', 'FS101'),
+(5, 'Alex',  '$2y$10$D2AN7I/Tu4bvMsdHf.w.lu55dWQPVuJctmQ/WGYfIYSmrIbRI7VYe', 'normal-user', 'FS101'),
+(6, 'Bun',  '$2y$10$D2AN7I/Tu4bvMsdHf.w.lu55dWQPVuJctmQ/WGYfIYSmrIbRI7VYe', 'normal-user', 'FS101'),
+(7, 'Catherine',  '$2y$10$D2AN7I/Tu4bvMsdHf.w.lu55dWQPVuJctmQ/WGYfIYSmrIbRI7VYe', 'normal-user', 'FS101'),
+(8, 'Cody',  '$2y$10$D2AN7I/Tu4bvMsdHf.w.lu55dWQPVuJctmQ/WGYfIYSmrIbRI7VYe', 'normal-user', 'FS101'),
+(9, 'Elmo',  '$2y$10$D2AN7I/Tu4bvMsdHf.w.lu55dWQPVuJctmQ/WGYfIYSmrIbRI7VYe', 'normal-user', 'FS101'),
+(10, 'Emily',  '$2y$10$D2AN7I/Tu4bvMsdHf.w.lu55dWQPVuJctmQ/WGYfIYSmrIbRI7VYe', 'normal-user', 'FS101'),
+(11, 'Grace',  '$2y$10$D2AN7I/Tu4bvMsdHf.w.lu55dWQPVuJctmQ/WGYfIYSmrIbRI7VYe', 'normal-user', 'FS101'),
+(12, 'Jason',  '$2y$10$D2AN7I/Tu4bvMsdHf.w.lu55dWQPVuJctmQ/WGYfIYSmrIbRI7VYe', 'normal-user', 'FS101'),
+(13, 'Joan',  '$2y$10$D2AN7I/Tu4bvMsdHf.w.lu55dWQPVuJctmQ/WGYfIYSmrIbRI7VYe', 'normal-user', 'FS101'),
+(14, 'Kasumi',  '$2y$10$D2AN7I/Tu4bvMsdHf.w.lu55dWQPVuJctmQ/WGYfIYSmrIbRI7VYe', 'normal-user', 'FS101'),
+(15, 'Kevin',  '$2y$10$D2AN7I/Tu4bvMsdHf.w.lu55dWQPVuJctmQ/WGYfIYSmrIbRI7VYe', 'normal-user', 'FS101'),
+(16, 'KevinChuang',  '$2y$10$D2AN7I/Tu4bvMsdHf.w.lu55dWQPVuJctmQ/WGYfIYSmrIbRI7VYe', 'normal-user', 'FS101'),
+(17, 'KevinWang',  '$2y$10$D2AN7I/Tu4bvMsdHf.w.lu55dWQPVuJctmQ/WGYfIYSmrIbRI7VYe', 'normal-user', 'FS101'),
+(18, 'Lihe',  '$2y$10$D2AN7I/Tu4bvMsdHf.w.lu55dWQPVuJctmQ/WGYfIYSmrIbRI7VYe', 'normal-user', 'FS101'),
+(19, 'Melody',  '$2y$10$D2AN7I/Tu4bvMsdHf.w.lu55dWQPVuJctmQ/WGYfIYSmrIbRI7VYe', 'normal-user', 'FS101'),
+(20, 'Ray',  '$2y$10$D2AN7I/Tu4bvMsdHf.w.lu55dWQPVuJctmQ/WGYfIYSmrIbRI7VYe', 'normal-user', 'FS101'),
+(21, 'Shen',  '$2y$10$D2AN7I/Tu4bvMsdHf.w.lu55dWQPVuJctmQ/WGYfIYSmrIbRI7VYe', 'normal-user', 'FS101'),
+(22, 'Simon',  '$2y$10$D2AN7I/Tu4bvMsdHf.w.lu55dWQPVuJctmQ/WGYfIYSmrIbRI7VYe', 'normal-user', 'FS101'),
+(23, 'Stanley',  '$2y$10$D2AN7I/Tu4bvMsdHf.w.lu55dWQPVuJctmQ/WGYfIYSmrIbRI7VYe', 'normal-user', 'FS101'),
+(24, 'Ted',  '$2y$10$D2AN7I/Tu4bvMsdHf.w.lu55dWQPVuJctmQ/WGYfIYSmrIbRI7VYe', 'normal-user', 'FS101'),
+(25, 'Tina',  '$2y$10$D2AN7I/Tu4bvMsdHf.w.lu55dWQPVuJctmQ/WGYfIYSmrIbRI7VYe', 'normal-user', 'FS101');
 
 --
 -- 已傾印資料表的索引
