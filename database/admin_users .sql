@@ -40,9 +40,9 @@ CREATE TABLE `admin_users` (
 --
 
 INSERT INTO `admin_users` (`no`, `acc`, `pwd`, `role`, `group_name`) VALUES
-(1, 'admin@demo.com', '16d7a4fca7442dda3ad93c9a726597e4', 'admin', 'FS101'),
-(2, 'adv-user@test.com',  '5f4dcc3b5aa765d61d8327deb882cf99', 'adv-user', 'FS101'),
-(3, 'user@test.com', '5f4dcc3b5aa765d61d8327deb882cf99', 'normal-user', 'FS101'),
+(1, 'admin@demo.com', '$2y$10$6M3tyWxxAkC70CczmhOyx.yMuXtytbHx28lVWz.qwKxSfW.1h2TZi', 'admin', 'FS101'),
+(2, 'adv-user@test.com',  '$2y$10$3vtPTRrnZViMnG5exuNX5.1LfWVfzNME7wKsYYGzjwlHEc5/gHJ6y', 'adv-user', 'FS101'),
+(3, 'user@test.com', '$2y$10$3vtPTRrnZViMnG5exuNX5.1LfWVfzNME7wKsYYGzjwlHEc5/gHJ6y', 'normal-user', 'FS101'),
 (4, 'Aaron',  '$2y$10$D2AN7I/Tu4bvMsdHf.w.lu55dWQPVuJctmQ/WGYfIYSmrIbRI7VYe', 'normal-user', 'FS101'),
 (5, 'Alex',  '$2y$10$D2AN7I/Tu4bvMsdHf.w.lu55dWQPVuJctmQ/WGYfIYSmrIbRI7VYe', 'normal-user', 'FS101'),
 (6, 'Bun',  '$2y$10$D2AN7I/Tu4bvMsdHf.w.lu55dWQPVuJctmQ/WGYfIYSmrIbRI7VYe', 'normal-user', 'FS101'),
