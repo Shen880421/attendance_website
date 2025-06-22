@@ -25,6 +25,27 @@ $defaultStudent = $students[0] ?? '';
 </head>
 
 <body>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary navbar-fixed-top shadow">
+    <div
+      class="container-fluid">
+      <!-- 網站品牌 -->
+      <a class="navbar-brand" href="#">出缺勤系統</a>
+      
+      <!-- 漢堡選單按鈕 (小螢幕顯示) -->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- 導航菜單內容 -->
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="btn btn-danger" aria-current="page" href="logout.php">登出</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
   <div class="container mt-4">
     <h2 class="mb-4">出勤儀表板 (企業/學員端)</h2>
 
@@ -213,7 +234,11 @@ $defaultStudent = $students[0] ?? '';
         },
         options: {
           responsive: true,
-          plugins: { legend: { display: false } }
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
         }
       });
 
@@ -231,7 +256,11 @@ $defaultStudent = $students[0] ?? '';
         },
         options: {
           responsive: true,
-          plugins: { legend: { display: false } }
+          plugins: {
+            legend: {
+              display: false
+            }
+          }
         }
       });
 
@@ -272,7 +301,7 @@ $defaultStudent = $students[0] ?? '';
       });
     }
 
-    document.getElementById("studentSelect").addEventListener("change", function () {
+    document.getElementById("studentSelect").addEventListener("change", function() {
       const name = this.value;
 
       fetch(`get_dashboard_data.php?name=${encodeURIComponent(name)}`)
@@ -352,8 +381,6 @@ $defaultStudent = $students[0] ?? '';
 
     // 預設載入
     document.addEventListener("DOMContentLoaded", loadDashboardData);
-
-
   </script>
 </body>
 

@@ -33,7 +33,7 @@ CREATE TABLE `admin_users` (
   `pwd` varchar(255) NOT NULL,
   `role` enum('admin','adv-user','normal-user') NOT NULL,
   `group_name` varchar(255) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- 傾印資料表的資料 `admin_users`
