@@ -22,35 +22,63 @@ $defaultStudent = $students[0] ?? '';
   <title>出勤儀表板</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+
+    .card h6 {
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .card h5 {
+      margin: 1rem 0 0.5rem;
+    }
+
+    .navbar-brand {
+      font-weight: bold;
+      font-size: 1.25rem;
+    }
+
+    .form-label {
+      font-weight: 600;
+    }
+
+    .table th {
+      background-color: #f1f1f1;
+    }
+
+    canvas {
+      max-height: 300px;
+    }
+  </style>
 </head>
 
 <body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-primary navbar-fixed-top shadow">
-    <div
-      class="container-fluid">
-      <!-- 網站品牌 -->
-      <a class="navbar-brand" href="#">出缺勤系統</a>
-      
-      <!-- 漢堡選單按鈕 (小螢幕顯示) -->
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+  <!-- 導覽列 -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">出缺勤系統（企業端）</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+        aria-controls="navbarNav" aria-expanded="false" aria-label="切換導航">
         <span class="navbar-toggler-icon"></span>
       </button>
-
-      <!-- 導航菜單內容 -->
-      <div class="collapse navbar-collapse" id="navbarNav">
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
         <ul class="navbar-nav">
           <li class="nav-item">
-            <a class="btn btn-danger" aria-current="page" href="logout.php">登出</a>
+            <a class="btn btn-danger" href="logout.php">登出</a>
           </li>
         </ul>
       </div>
     </div>
   </nav>
-  <div class="container mt-4">
-    <h2 class="mb-4">出勤儀表板 (企業/學員端)</h2>
 
-    <!-- 學員選單 (企業端顯示) -->
-    <div class="mb-3" id="student-selector">
+  <!-- 內容區塊 -->
+  <div class="container mt-4">
+
+    <!-- 學員選單 -->
+    <div class="mb-4">
       <label for="studentSelect" class="form-label">選擇學員：</label>
       <select id="studentSelect" class="form-select">
         <?php foreach ($students as $student): ?>
@@ -62,50 +90,54 @@ $defaultStudent = $students[0] ?? '';
     </div>
 
     <!-- 統計卡片 -->
-    <div class="row row-cols-1 row-cols-md-3 g-4">
+    <div class="row row-cols-1 row-cols-md-2 g-4 mb-4">
       <div class="col">
-        <div class="card p-3">
+        <div class="card shadow-sm p-4">
           <h6>總課程時數</h6>
-          <div id="totalclasshours" class="fs-5 text-primary">---</div>
+          <div id="totalclasshours" class="fs-5 text-primary mb-3">---</div>
           <h6>實際上課時數</h6>
-          <div id="attendance" class="fs-5 text-primary">---</div>
+          <div id="attendance" class="fs-5 text-primary mb-3">---</div>
           <h6>出勤比率</h6>
           <div id="attendancerate" class="fs-5 text-primary">---</div>
         </div>
       </div>
       <div class="col">
-        <div class="card p-3">
+        <div class="card shadow-sm p-4">
           <h6>缺席時數</h6>
-          <div id="unattendance" class="fs-5 text-primary">---</div>
+          <div id="unattendance" class="fs-5 text-primary mb-3">---</div>
           <h6>遲到時數</h6>
-          <div id="late" class="fs-5 text-primary">---</div>
+          <div id="late" class="fs-5 text-primary mb-3">---</div>
           <h6>早退時數</h6>
           <div id="leave_early" class="fs-5 text-primary">---</div>
         </div>
       </div>
-
     </div>
 
     <!-- 圖表 -->
-    <div class="row row-cols-1 row-cols-md-3 g-4 mt-4">
-
-      <div class="card col-md-4">
-        <h5>每日上課時數折線圖</h5>
-        <canvas id="myclasstimeChart"></canvas>
+    <div class="row g-4 mb-5">
+      <div class="col-md-4">
+        <div class="card shadow-sm p-3">
+          <h5>每日上課時數折線圖</h5>
+          <canvas id="myclasstimeChart"></canvas>
+        </div>
       </div>
-      <div class="card col-md-4">
-        <h5>每日在校時數長條圖</h5>
-        <canvas id="myattentimeChart"></canvas>
+      <div class="col-md-4">
+        <div class="card shadow-sm p-3">
+          <h5>每日在校時數長條圖</h5>
+          <canvas id="myattentimeChart"></canvas>
+        </div>
       </div>
-      <div class="card col-md-4">
-        <h5>出/缺席圓餅圖</h5>
-        <canvas id="myAttenChart"></canvas>
+      <div class="col-md-4">
+        <div class="card shadow-sm p-3">
+          <h5>出/缺席圓餅圖</h5>
+          <canvas id="myAttenChart"></canvas>
+        </div>
       </div>
-
     </div>
-    <!-- 打卡紀錄查詢 -->
-    <div class="mt-5">
-      <h5>打卡紀錄</h5>
+
+    <!-- 打卡紀錄 -->
+    <div class="mb-5">
+      <h5 class="mb-3">打卡紀錄</h5>
       <form class="row g-3 mb-3">
         <div class="col-md-4">
           <label for="startDate" class="form-label">起始日期</label>
@@ -119,21 +151,23 @@ $defaultStudent = $students[0] ?? '';
           <button type="button" class="btn btn-primary w-100" onclick="filterRecords()">查詢</button>
         </div>
       </form>
-      <table class="table table-bordered">
-        <thead>
-          <tr>
-            <th>日期</th>
-            <th>打卡時間</th>
-            <th>狀態</th>
-          </tr>
-        </thead>
-        <tbody id="recordTable">
-          <!-- 動態生成紀錄 -->
-        </tbody>
-      </table>
+
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>日期</th>
+              <th>打卡時間</th>
+              <th>狀態</th>
+            </tr>
+          </thead>
+          <tbody id="recordTable">
+            <!-- 動態生成紀錄 -->
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
-
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <!-- 自訂邏輯放外部檔案或嵌入 -->
@@ -301,7 +335,7 @@ $defaultStudent = $students[0] ?? '';
       });
     }
 
-    document.getElementById("studentSelect").addEventListener("change", function() {
+    document.getElementById("studentSelect").addEventListener("change", function () {
       const name = this.value;
 
       fetch(`get_dashboard_data.php?name=${encodeURIComponent(name)}`)
