@@ -22,6 +22,8 @@ $defaultStudent = $students[0] ?? '';
   <title>出勤儀表板</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
   <style>
     body {
       background-color: #f8f9fa;
@@ -91,7 +93,7 @@ $defaultStudent = $students[0] ?? '';
 
     <!-- 統計卡片 -->
     <div class="row row-cols-1 row-cols-md-2 g-4 mb-4">
-      <div class="col">
+      <div class="col" data-aos="zoom-in">
         <div class="card shadow-sm p-4">
           <h6>總課程時數</h6>
           <div id="totalclasshours" class="fs-5 text-primary mb-3">---</div>
@@ -101,7 +103,7 @@ $defaultStudent = $students[0] ?? '';
           <div id="attendancerate" class="fs-5 text-primary">---</div>
         </div>
       </div>
-      <div class="col">
+      <div class="col" data-aos="zoom-in">
         <div class="card shadow-sm p-4">
           <h6>缺席時數</h6>
           <div id="unattendance" class="fs-5 text-primary mb-3">---</div>
@@ -168,6 +170,16 @@ $defaultStudent = $students[0] ?? '';
       </div>
     </div>
   </div>
+
+  <footer class="bg-dark text-light text-center py-4 mt-5">
+    <div class="container">
+      <p class="mb-1 fw-bold">聯絡我們</p>
+      <p class="mb-1">Email：support@example.com</p>
+      <p class="mb-1">電話：02-1234-5678</p>
+      <p class="mb-0">&copy; <?= date("Y") ?> 出缺勤系統 | 版權所有</p>
+    </div>
+  </footer>
+
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <!-- 自訂邏輯放外部檔案或嵌入 -->
@@ -205,7 +217,6 @@ $defaultStudent = $students[0] ?? '';
     function renderSummary(data) {
       if (!data.length) return;
 
-      // 加總欄位
       const sum = (field) => data.reduce((a, b) => a + parseFloat(b[field] || 0), 0);
 
       const totalHours = sum("class_hours");
@@ -214,23 +225,32 @@ $defaultStudent = $students[0] ?? '';
       const lateHours = sum("late_hours");
       const leaveEarlyHours = sum("leave_early_hours");
 
-      // 顯示加總結果
-      document.getElementById("totalclasshours").textContent = totalHours.toFixed(1);
+      // 更新其他文字欄位
       document.getElementById("attendance").textContent = attendedHours.toFixed(1);
       document.getElementById("unattendance").textContent = absentHours.toFixed(1);
       document.getElementById("late").textContent = lateHours.toFixed(1);
       document.getElementById("leave_early").textContent = leaveEarlyHours.toFixed(1);
 
-      // 出勤率：實際上課 ÷ 總課程
+      // 出勤率
       let rate = 0;
       if (totalHours > 0) {
         rate = (attendedHours / totalHours) * 100;
       }
-      document.getElementById("attendancerate").textContent = rate.toFixed(1) + "%";
 
-      // 更新圖表
+      // ✅ 數字動畫效果（totalHours / 出勤率）
+      const totalHoursCounter = new countUp.CountUp('totalclasshours', totalHours.toFixed(1));
+      const attendanceRateCounter = new countUp.CountUp('attendancerate', rate.toFixed(1), {
+        suffix: '%',
+        decimalPlaces: 1
+      });
+
+      if (!totalHoursCounter.error) totalHoursCounter.start();
+      if (!attendanceRateCounter.error) attendanceRateCounter.start();
+
+      // 繪製圖表
       drawCharts(data);
     }
+
 
 
     function drawCharts(data) {
@@ -416,6 +436,12 @@ $defaultStudent = $students[0] ?? '';
     // 預設載入
     document.addEventListener("DOMContentLoaded", loadDashboardData);
   </script>
+
+  <script>
+    AOS.init();
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/countup.js@2.6.2/dist/countUp.umd.js"></script>
+
 </body>
 
 </html>
