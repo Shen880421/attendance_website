@@ -26,21 +26,16 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
     $pwd = $_POST["passwd"];
     // $role = $_POST['role'];
 
-    if (filter_var($acc)) {
-        //echo "合法 Email";
-        $stmt = $pdo->prepare("select acc, pwd, role from admin_users where acc = :acc and pwd = :pwd");
-        $result = $stmt->execute([
-            ":acc" => $acc,
-            ":pwd" => md5($pwd), //md5 加密使用者輸入的密碼後與資料表中的資料進行比對
-        ]);
+    if ($acc) {
+        // 1. 查詢帳號對應的密碼雜湊值
+        $stmt = $pdo->prepare("SELECT acc, pwd, role FROM admin_users WHERE acc = :acc");
+        $stmt->execute([":acc" => $acc]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($stmt->rowCount() == 1) {
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            //var_dump($row);
+        if ($user && password_verify($pwd, $user['pwd'])) {
             $_SESSION['backend_login_flag'] = true;
             $_SESSION['backend_login_acc'] = $acc;
-            $_SESSION['backend_login_role'] = $row["role"];
-            switch ($_SESSION['backend_login_role']) {
+            switch ($user['role']) {
                 case 'admin':
                     header("location: admin_dashboard.php");
                     exit;
@@ -61,10 +56,6 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
             $alert_type = "alert-danger";
         }
     }
-    // else {
-    //     $message = "帳號電郵格式錯誤";
-    //     $alert_type = "alert-warning";
-    // }
 }
 
 echo $twig->render(
