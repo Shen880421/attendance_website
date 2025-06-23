@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
         $stmt->execute([":acc" => $acc]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($user) {
+        if ($user && password_verify($pwd, $user['pwd'])) {
             $_SESSION['backend_login_flag'] = true;
             $_SESSION['backend_login_acc'] = $acc;
             switch ($user['role']) {
