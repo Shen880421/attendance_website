@@ -57,9 +57,9 @@ $defaultStudent = $students[0] ?? '';
   </style>
 </head>
 
-<body>
+<body class="pt-5">
   <!-- 導覽列 -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top shadow">
     <div class="container-fluid">
       <a class="navbar-brand" href="#">出缺勤系統（學員端）</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
