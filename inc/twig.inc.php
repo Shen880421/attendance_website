@@ -1,4 +1,7 @@
 <?php
+// 載入 Cache 修復檔案
+require_once __DIR__ . '/cache_fix.php';
+
 // 使用 use 關鍵字引入 Twig 相關的類別
 // 這樣我們就可以直接使用 FilesystemLoader 和 Environment，而不是寫完整的 \Twig\Loader\FilesystemLoader
 use Twig\Loader\FilesystemLoader;
@@ -12,8 +15,6 @@ $loader = new FilesystemLoader(__DIR__ . '/../templates');
 
 // Twig 環境設定
 $twig = new Environment($loader, [
-    //'cache' => __DIR__ . '/../cache', // 模板緩存路徑，開發時可以設為 false，上線後建議啟用
-    'cache' => false, 
     'debug' => true,                  // 開啟除錯模式，有利於開發
 ]);
 
@@ -23,13 +24,14 @@ if ($twig->isDebug()) {
     $twig->addExtension(new \Twig\Extension\DebugExtension());
 }
 
-function debug_print($data=[], $display=true, $die = false){
-    if($display){
+function debug_print($data = [], $display = true, $die = false)
+{
+    if ($display) {
         echo "<pre>";
         print_r($data);
         echo "</pre>";
     }
-    if($die){
+    if ($die) {
         die();
     }
 }

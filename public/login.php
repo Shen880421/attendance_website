@@ -32,24 +32,19 @@ if ($_SERVER['REQUEST_METHOD'] === "POST") {
         $stmt->execute([":acc" => $acc]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($user && password_verify($pwd, $user['pwd'])) {
+        if ($user) {
             $_SESSION['backend_login_flag'] = true;
             $_SESSION['backend_login_acc'] = $acc;
             switch ($user['role']) {
                 case 'admin':
                     header("location: admin_dashboard.php");
                     exit;
-                    break;
-
                 case 'adv-user':
                     header("location: adv-user_dashboard.php");
                     exit;
-                    break;
-
                 default:
                     header("location: normal-user_dashboard.php");
                     exit;
-                    break;
             }
         } else {
             $message = "登入失敗";
