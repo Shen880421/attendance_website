@@ -1,18 +1,16 @@
 <?php
 header('Content-Type: application/json');
-require_once '../inc/db.inc.php'; // 請根據實際路徑修改
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+require_once '../inc/db.inc.php';
 
-// // 取得學生姓名（從 GET 參數或 SESSION）
-// $student_name = isset($_GET['name']) ? $_GET['name'] : null;
-
-// if (!$student_name) {
-//     echo json_encode(['error' => '缺少學生名稱']);
-//     exit;
-// }
-
-// 安全查詢資料庫
 $input = json_decode(file_get_contents('php://input'), true);
-$name = $input['name']; // 從 fetch 傳入的 name
+$name = isset($input['name']) ? $input['name'] : null;
+if (!$name) {
+    echo json_encode(['error' => '缺少學生名稱']);
+    exit;
+}
+
 $sql = "WITH attendance AS (
         SELECT
             in_data.Name,
@@ -43,9 +41,9 @@ $sql = "WITH attendance AS (
                 WHERE `In/Out` = 'out'
             ) AS out_data
         ON 
-            in_data.Name = out_data.Name
+            in_data.Name = out_data.Name COLLATE utf8mb4_unicode_ci
             AND in_data.real_date = out_data.real_date
-            AND in_data.group_name = out_data.group_name
+            AND in_data.group_name = out_data.group_name COLLATE utf8mb4_unicode_ci
         )
 
         SELECT
@@ -57,9 +55,9 @@ $sql = "WITH attendance AS (
             LEAST(ROUND(SUM(a.duration_hours) / SUM(c.class_hours) * 100, 2), 100) AS completion_rate_pct
         FROM attendance a
         JOIN classes c
-            ON a.group_name = c.group_name
+            ON a.group_name = c.group_name COLLATE utf8mb4_unicode_ci
             AND a.real_date = c.class_date
-        WHERE a.name = :name  -- 這行限定查詢 Shen
+        WHERE a.name = :name COLLATE utf8mb4_unicode_ci
         GROUP BY
             a.Name,
             a.group_name,

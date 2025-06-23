@@ -10,8 +10,8 @@
 <script>
     let myChart = null;
     let myChart2 = null;
-
     function updateChart(data) {
+        console.log('sumclassdata.php 回傳:', data);
         const ctx = document.getElementById('courseChart').getContext('2d');
         if (myChart) {
             myChart.destroy();
@@ -22,6 +22,7 @@
         const completionRates = data.map(item => parseFloat(item.completion_rate_pct));
         const completedHours = totalHours.map((hours, i) => hours * (completionRates[i] / 100));
         const remainingHours = totalHours.map((hours, i) => hours - completedHours[i]);
+
 
         myChart = new Chart(ctx, {
             type: 'bar',
