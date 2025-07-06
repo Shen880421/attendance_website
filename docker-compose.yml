@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+    mysql:
+        image: mysql
+        container_name: mysql
+        ports:
+            - "3306:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: ashen2250
+        volumes:
+            - mysql_data:/var/lib/mysql
+        restart: unless-stopped
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: phpmyadmin
+        depends_on:
+            - mysql
+        environment:
+            PMA_HOST: mysql
+        ports:
+            - "8080:80"
+        restart: unless-stopped
+
+    attendence-app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: running-attendence
+        ports:
+            - "80:80"
+        volumes:
+            - /home/solove5171/attendance_website:/var/www/html/
+        depends_on:
+            - mysql
+        restart: unless-stopped
+
+volumes:
+    mysql_data:
