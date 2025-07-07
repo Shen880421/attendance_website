@@ -1,5 +1,5 @@
 <?php
-$host = '36.228.223.127';
+$host = '36.228.221.55';
 $port = 3306;
 $dbName = 'AbsenceSystemTeam5';
 $username = 'KevinL';
