@@ -1,9 +1,9 @@
 <?php
-$host = '61.228.78.152';
+$host = '61.228.78.152';        //'172.17.0.2'
 $port = 3306;
-$dbName = 'AbsenceSystemTeam5';
-$username = 'KevinL';
-$password = 'fs101';
+$dbName = 'AbsenceSystemTeam5'; //'attendance_web_project'
+$username = 'KevinL';           //'root'
+$password = 'fs101';            //'ashen2250'
 $charset = 'utf8mb4';           // 字元集，建議使用 utf8mb4 支援更多字元，如 Emoji
 // DSN (Data Source Name)
 $dsn = "mysql:host=$host;port=$port;dbname=$dbName;charset=$charset";
