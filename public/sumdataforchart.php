@@ -13,20 +13,38 @@ if (!$name) {
     exit;
 }
 
-$sql = "SELECT 
-            COUNT(*) AS total_rows,
-            COUNT(DISTINCT class_date) AS days,
-            SUM(class_hours) AS class_hours,
-            SUM(attended_hours) AS attended_hours,
-            SUM(absent_hours) AS absent_hours,
-            SUM(late_hours) AS late_hours,
-            SUM(leave_early_hours) AS leave_early_hours,
-            SUM(raw_hours) AS raw_hours
-        FROM attendance_log
-        WHERE name = :name";
+if ($name === 'all') {
+    // 查詢所有學生的統計資料
+    $sql = "SELECT 
+                COUNT(*) AS total_rows,
+                COUNT(DISTINCT class_date) AS days,
+                SUM(class_hours) AS class_hours,
+                SUM(attended_hours) AS attended_hours,
+                SUM(absent_hours) AS absent_hours,
+                SUM(late_hours) AS late_hours,
+                SUM(leave_early_hours) AS leave_early_hours,
+                SUM(raw_hours) AS raw_hours
+            FROM attendance_log";
 
-$stmt = $pdo->prepare($sql);
-$stmt->execute(['name' => $name]);
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute();
+} else {
+    // 查詢特定學生的統計資料
+    $sql = "SELECT 
+                COUNT(*) AS total_rows,
+                COUNT(DISTINCT class_date) AS days,
+                SUM(class_hours) AS class_hours,
+                SUM(attended_hours) AS attended_hours,
+                SUM(absent_hours) AS absent_hours,
+                SUM(late_hours) AS late_hours,
+                SUM(leave_early_hours) AS leave_early_hours,
+                SUM(raw_hours) AS raw_hours
+            FROM attendance_log
+            WHERE name = :name";
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute(['name' => $name]);
+}
 $data = $stmt->fetch(PDO::FETCH_ASSOC); // ✅ 建議用 fetch() 回傳單筆彙總
 
 echo json_encode($data, JSON_UNESCAPED_UNICODE);

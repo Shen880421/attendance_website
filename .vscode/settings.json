@@ -3,5 +3,10 @@
         {
             "file": "commit-rule.md"
         }
-    ]
+    ],
+    "[twig]": {
+        "editor.defaultFormatter": "serhatkaya.twig-formatter"
+    },
+    "prettier.documentSelectors": ["**/*.twig"],
+    "prettier.enable": true
 }
