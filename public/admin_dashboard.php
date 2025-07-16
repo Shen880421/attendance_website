@@ -172,6 +172,88 @@ switch ($mode) {
         $tmplFile = "/dashboard/message.twig";
         break;
 
+    case 'editdata':
+        // 顯示編輯表單
+        $name = $_GET['name'] ?? '';
+        $inout = $_GET['inout'] ?? '';
+        $time = $_GET['time'] ?? '';
+        $date = $_GET['date'] ?? '';
+
+        if (!$name || !$inout || !$time || !$date) {
+            die("缺少必要參數");
+        }
+
+        $data['edit_record'] = [
+            'name' => $name,
+            'inout' => $inout,
+            'time' => $time,
+            'date' => $date
+        ];
+
+        $tmplFile = "/dashboard/editdata.twig";
+        break;
+
+    case 'updatedata':
+        // 處理更新資料
+        if (!isset($_POST['original_name'], $_POST['original_inout'], $_POST['original_time'], $_POST['original_date'])) {
+            die("缺少原始資料參數");
+        }
+
+        if (!isset($_POST['name'], $_POST['inout'], $_POST['time'], $_POST['date'])) {
+            die("缺少更新資料參數");
+        }
+
+        $original_name = trim($_POST['original_name']);
+        $original_inout = trim($_POST['original_inout']);
+        $original_time = trim($_POST['original_time']);
+        $original_date = trim($_POST['original_date']);
+
+        $new_name = trim($_POST['name']);
+        $new_inout = trim($_POST['inout']);
+        $new_time = trim($_POST['time']);
+        $new_date = trim($_POST['date']);
+        $new_ip = trim($_POST['IP'] ?? '');
+
+        // 驗證基本格式
+        if (!in_array($new_inout, ['in', 'out'])) {
+            die("打卡狀態只能是 in 或 out");
+        }
+
+        try {
+            $stmt = $pdo->prepare("
+                UPDATE total_hours 
+                SET Name = :new_name, `In/Out` = :new_inout, Time = :new_time, Date = :new_date, IPAddress = :new_ip
+                WHERE Name = :original_name AND `In/Out` = :original_inout AND Time = :original_time AND Date = :original_date
+            ");
+
+            $stmt->execute([
+                ':new_name' => $new_name,
+                ':new_inout' => $new_inout,
+                ':new_time' => $new_time,
+                ':new_date' => $new_date,
+                ':new_ip' => $new_ip,
+                ':original_name' => $original_name,
+                ':original_inout' => $original_inout,
+                ':original_time' => $original_time,
+                ':original_date' => $original_date
+            ]);
+
+            if ($stmt->rowCount() > 0) {
+                $data["message"] = "你更新了 " . $original_name . " 的 " . $stmt->rowCount() . " 筆資料。稍後自動跳轉<br>";
+                $data["alert_type"] = "alert-success";
+            } else {
+                $data["message"] = "沒有找到符合條件的資料進行更新";
+                $data["alert_type"] = "alert-warning";
+            }
+        } catch (PDOException $e) {
+            die("資料更新失敗: " . $e->getMessage());
+        }
+
+        $data["name"] = $new_name;
+        $data["date"] = $new_date;
+        $tmplFile = "/dashboard/message.twig";
+        break;
+
     case 'adduser':
         $data = [];
         // 檢查是否為 POST 請求

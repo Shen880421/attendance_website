@@ -1,6 +1,6 @@
 <?php
 // 載入 Cache 修復檔案
-require_once __DIR__ . '/cache_fix.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 // 使用 use 關鍵字引入 Twig 相關的類別
 // 這樣我們就可以直接使用 FilesystemLoader 和 Environment，而不是寫完整的 \Twig\Loader\FilesystemLoader

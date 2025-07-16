@@ -37,11 +37,8 @@
 								<td>{{info.IPAddress}}</td>
 								<td>
 									<div class="btn-group" role="group" aria-label="Basic example">
-										<a href="admin_dashboard.php?mode=deletedata
-                            &name=${encodeURIComponent(row.Name)}
-                            &inout=${encodeURIComponent(row[" In/Out"])}
-                            &time=${encodeURIComponent(row.Time)}
-                            &date=${encodeURIComponent(row.Date)}" class="btn btn-sm btn-danger">移除</a>
+										<a href="admin_dashboard.php?mode=editdata&name={{info.Name|url_encode}}&inout={{attribute(info, 'In/Out')|url_encode}}&time={{info.Time|url_encode}}&date={{info.Date|url_encode}}" class="btn btn-sm btn-warning">編輯</a>
+										<a href="admin_dashboard.php?mode=deletedata&name={{info.Name|url_encode}}&inout={{attribute(info, 'In/Out')|url_encode}}&time={{info.Time|url_encode}}&date={{info.Date|url_encode}}" class="btn btn-sm btn-danger">移除</a>
 									</div>
 								</td>
 							</tr>
@@ -138,14 +135,33 @@ row.IPAddress
         </td>
     `;
 
-// 在剛剛的 btn-group 裡動態建立刪除按鈕
+// 在剛剛的 btn-group 裡動態建立編輯和刪除按鈕
 const btnGroup = tr.querySelector('.btn-group');
+
+// 編輯按鈕
+const editLink = document.createElement('a');
+editLink.className = 'btn btn-sm btn-warning';
+editLink.textContent = '編輯';
+
+// 組合編輯 URL
+const editParams = new URLSearchParams({
+mode: 'editdata',
+name: row.Name,
+inout: row["In/Out"],
+time: row.Time,
+date: row.Date,
+search_date: inoutDate
+});
+
+editLink.href = 'admin_dashboard.php?' + editParams.toString();
+
+// 刪除按鈕
 const delLink = document.createElement('a');
 delLink.className = 'btn btn-sm btn-danger';
 delLink.textContent = '移除';
 
-// 組合 URL，並 encodeURIComponent 避免特殊字元問題
-const params = new URLSearchParams({
+// 組合刪除 URL
+const delParams = new URLSearchParams({
 mode: 'deletedata',
 name: row.Name,
 inout: row["In/Out"],
@@ -154,8 +170,9 @@ date: row.Date,
 search_date: inoutDate
 });
 
-delLink.href = 'admin_dashboard.php?' + params.toString();
+delLink.href = 'admin_dashboard.php?' + delParams.toString();
 
+btnGroup.appendChild(editLink);
 btnGroup.appendChild(delLink);
 
 tableBody.appendChild(tr);
