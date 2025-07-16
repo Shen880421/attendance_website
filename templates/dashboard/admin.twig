@@ -221,7 +221,7 @@ const leave_early = document.getElementById("leave_early");
 
 // 初始化學生選單
 fetch('student.php').then(res => res.json()).then(studentList => {
-studentSelect.innerHTML = '<option selected disabled>選取學生</option>';
+studentSelect.innerHTML = '<option value="">所有學生</option>';
 studentList.forEach(student => {
 const option = document.createElement('option');
 option.value = student.name;
@@ -233,11 +233,136 @@ studentSelect.appendChild(option);
 // 頁面載入時先顯示所有學生資料
 loadAllStudentData();
 
+// 學生選單變更事件
+studentSelect.addEventListener('change', function() {
+const studentname = this.value;
+
+if (!studentname) { // 如果選擇所有學生，顯示所有學生資料
+loadAllStudentData();
+return;
+}
+
+// 取得統計數據
+fetch('sumdataforchart.php', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json'
+},
+body: JSON.stringify(
+{name: studentname}
+)
+}).then(res => res.json()).then(data => {
+if (!data || Object.keys(data).length === 0 || data.error) {
+alert('查無該學生的統計資料');
+return;
+}
+
+attendance.innerHTML = `${
+parseFloat(data.attended_hours).toFixed(2)
+} 小時`;
+unattendance.innerHTML = `${
+parseFloat(data.absent_hours).toFixed(2)
+} 小時`;
+late.innerHTML = `${
+parseFloat(data.late_hours).toFixed(2)
+} 小時`;
+leave_early.innerHTML = `${
+parseFloat(data.leave_early_hours).toFixed(2)
+} 小時`;
+
+classhours.innerHTML = `${
+parseFloat(data.class_hours).toFixed(2)
+} 小時`;
+total_rows.innerHTML = `${
+data.total_rows
+} 堂課`;
+days.innerHTML = `${
+data.days
+} 天`;
+
+const attendanceratenum = parseInt((parseFloat(data.attended_hours) / parseFloat(data.class_hours)) * 100);
+attendancerate.innerHTML = `${attendanceratenum}%`;
+
+const lateratecal = (parseFloat(data.late_hours) / parseFloat(data.class_hours)) * 100;
+laterate.innerHTML = `${
+lateratecal.toFixed(2)
+}%`;
+
+const leave_earlyratecal = (parseFloat(data.leave_early_hours) / parseFloat(data.class_hours)) * 100;
+leave_earlyrate.innerHTML = `${
+leave_earlyratecal.toFixed(2)
+}%`;
+
+const inschoolavragecal = parseFloat(parseInt(data.raw_hours) / parseInt(data.days));
+inschoolavrage.innerHTML = `${
+inschoolavragecal.toFixed(2)
+} 小時`;
+
+// 取得並更新單一學生的課程資料
+fetch('sumclassdata.php', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json'
+},
+body: JSON.stringify(
+{name: studentname}
+)
+}).then(res => res.json()).then(data => {
+console.log('sumclassdata.php response:', data);
+if (data && data.length > 0) {
+updateChart(data);
+}
+}).catch(error => {
+console.error('取得課程資料錯誤:', error);
+});
+
+// 取得並更新折線圖資料
+fetch('hoursline.php', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json'
+},
+body: JSON.stringify(
+{name: studentname}
+)
+}).then(res => res.json()).then(data => {
+console.log('hoursline.php response:', data);
+if (data && data.length > 0) {
+updateLineChart(data);
+}
+}).catch(error => {
+console.error('取得折線圖資料錯誤:', error);
+});
+
+// 取得並更新圓餅圖資料
+fetch('sumdataforchart.php', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json'
+},
+body: JSON.stringify(
+{name: studentname}
+)
+}).then(res => res.json()).then(data => {
+console.log('sumdataforchart.php response for pie chart:', data);
+if (data && !data.error) {
+updatePieChart(data);
+}
+}).catch(error => {
+console.error('取得圓餅圖資料錯誤:', error);
+});
+
+}).catch(error => {
+console.error('取得統計資料錯誤:', error);
+alert('無法取得統計資料，請稍後再試');
+});
+});
+
 // 搜尋按鈕事件
 document.getElementById('searchBtn').addEventListener('click', function () {
 const studentname = studentSelect.value;
 
-if (! studentname) { // 如果沒選學生，顯示所有學生資料
+if (!studentname) { // 如果選擇所有學生，顯示所有學生資料
 loadAllStudentData();
 return;
 }
