@@ -11,7 +11,7 @@ $stmt = $pdo->query("SELECT DISTINCT name FROM attendance_log ORDER BY name ASC"
 while ($row = $stmt->fetch()) {
   $students[] = $row['name'];
 }
-$defaultStudent = $students[0] ?? '';
+$defaultStudent = ''; // 預設選擇所有學生
 ?>
 <!DOCTYPE html>
 <html lang="zh-TW">
@@ -83,6 +83,7 @@ $defaultStudent = $students[0] ?? '';
     <div class="mb-4">
       <label for="studentSelect" class="form-label">選擇學員：</label>
       <select id="studentSelect" class="form-select">
+        <option value="">所有學生</option>
         <?php foreach ($students as $student): ?>
           <option value="<?= htmlspecialchars($student) ?>" <?= $student == $defaultStudent ? 'selected' : '' ?>>
             <?= htmlspecialchars($student) ?>
@@ -185,14 +186,25 @@ $defaultStudent = $students[0] ?? '';
   <!-- 自訂邏輯放外部檔案或嵌入 -->
   <?php
   // 取得預設學生統計資料
-  $stmt = $pdo->prepare("SELECT * FROM attendance_log WHERE name = ? ORDER BY class_date DESC");
-  $stmt->execute([$defaultStudent]);
-  $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  if ($defaultStudent) {
+    // 單一學生
+    $stmt = $pdo->prepare("SELECT * FROM attendance_log WHERE name = ? ORDER BY class_date DESC");
+    $stmt->execute([$defaultStudent]);
+    $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-  // 最新打卡記錄
-  $stmt2 = $pdo->prepare("SELECT * FROM total_hours WHERE Name = ? ORDER BY Date DESC LIMIT 10");
-  $stmt2->execute([$defaultStudent]);
-  $records = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+    // 最新打卡記錄
+    $stmt2 = $pdo->prepare("SELECT * FROM total_hours WHERE Name = ? ORDER BY Date DESC LIMIT 10");
+    $stmt2->execute([$defaultStudent]);
+    $records = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+  } else {
+    // 所有學生
+    $stmt = $pdo->query("SELECT * FROM attendance_log ORDER BY class_date DESC");
+    $logs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // 最新打卡記錄
+    $stmt2 = $pdo->query("SELECT * FROM total_hours ORDER BY Date DESC LIMIT 10");
+    $records = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+  }
 
   // 可用資料塞入 JS 變數（chart, cards, records）
   ?>
@@ -358,7 +370,10 @@ $defaultStudent = $students[0] ?? '';
     document.getElementById("studentSelect").addEventListener("change", function () {
       const name = this.value;
 
-      fetch(`get_dashboard_data.php?name=${encodeURIComponent(name)}`)
+      // 如果選擇所有學生，不傳 name 參數
+      const url = name ? `get_dashboard_data.php?name=${encodeURIComponent(name)}` : `get_dashboard_data.php`;
+      
+      fetch(url)
         .then(res => res.json())
         .then(data => {
           renderSummary(data.attendance);
@@ -372,11 +387,10 @@ $defaultStudent = $students[0] ?? '';
       const startDate = document.getElementById("startDate").value;
       const endDate = document.getElementById("endDate").value;
 
-      const params = new URLSearchParams({
-        name: student,
-        start_date: startDate,
-        end_date: endDate
-      });
+      const params = new URLSearchParams();
+      if (student) params.append('name', student);
+      if (startDate) params.append('start_date', startDate);
+      if (endDate) params.append('end_date', endDate);
 
       fetch(`get_dashboard_data.php?${params.toString()}`)
         .then(res => res.json())
@@ -391,16 +405,15 @@ $defaultStudent = $students[0] ?? '';
       const start = document.getElementById("startDate").value;
       const end = document.getElementById("endDate").value;
 
-      if (!name || !start || !end) {
-        alert("請選擇學員與完整的日期區間");
+      if (!start || !end) {
+        alert("請選擇完整的日期區間");
         return;
       }
 
-      const params = new URLSearchParams({
-        name: name,
-        start_date: start,
-        end_date: end
-      });
+      const params = new URLSearchParams();
+      if (name) params.append('name', name);
+      params.append('start_date', start);
+      params.append('end_date', end);
 
       fetch(`get_records.php?${params}`)
         .then(res => res.json())
