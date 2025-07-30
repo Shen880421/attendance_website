@@ -1,5 +1,5 @@
 <?php
-$host = '61.228.73.253';        //'172.17.0.2'
+$host = 'fs101.coded2.fun';        //'172.17.0.2'
 $port = 3306;
 $dbName = 'AbsenceSystemTeam5'; //'attendance_web_project'
 $username = 'KevinL';           //'root'
